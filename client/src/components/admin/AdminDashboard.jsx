@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import moment from 'moment'; // Cần cài đặt: npm install moment
+import { 
+  FaBoxOpen, FaNewspaper, FaClipboardList, FaUsers, FaMoneyBillWave, 
+  FaFileExcel, FaCalendarAlt, FaSearch,
+  FaTruck, FaPlusCircle, FaUser, FaInfoCircle
+} from 'react-icons/fa'; 
+import './AdminDashboard.css'; 
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -10,7 +17,7 @@ const AdminDashboard = () => {
     totalBookings: 0,
     totalCustomers: 0,
     totalRevenue: 0,
-    revenueDetails: [] // Khởi tạo rỗng để tránh undefined
+    revenueDetails: [] 
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,11 +34,12 @@ const AdminDashboard = () => {
           setLoading(false);
           return;
         }
+        
         const response = await axios.get('http://localhost:5000/api/dashboard-stats', {
           headers: { Authorization: `Bearer ${token}` },
           params: { startDate, endDate }
         });
-        console.log('API Response:', response.data); // Debug log
+        
         const data = response.data || {};
         setStats({
           totalServices: data.totalServices || 0,
@@ -39,12 +47,13 @@ const AdminDashboard = () => {
           totalBookings: data.totalBookings || 0,
           totalCustomers: data.totalCustomers || 0,
           totalRevenue: data.totalRevenue || 0,
+          // Đảm bảo revenueDetails là mảng các booking
           revenueDetails: Array.isArray(data.revenueDetails) ? data.revenueDetails : []
         });
         setError('');
       } catch (error) {
-        console.error('Lỗi khi lấy dữ liệu:', error.response?.data || error.message);
-        setError(`Lỗi: ${error.response?.statusText || 'Không xác định'}. ${error.response?.data?.message || 'Vui lòng kiểm tra server hoặc thử lại.'}`);
+        console.error('Lỗi khi lấy dữ liệu:', error);
+        setError('Không thể tải dữ liệu thống kê.');
       } finally {
         setLoading(false);
       }
@@ -52,133 +61,251 @@ const AdminDashboard = () => {
     fetchData();
   }, [startDate, endDate]);
 
-  const exportToExcel = () => {
-    const dataToExport = stats.revenueDetails.map(service => ({
-      'Dịch vụ': service.name || 'Không xác định',
-      'Doanh thu (VND)': service.price || 0
-    }));
-    const ws = XLSX.utils.json_to_sheet(dataToExport);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Doanh thu');
-    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'DoanhThu_Thú_Cưng.xlsx');
+  // --- FORMAT TIỀN TỆ ---
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
   };
 
-  if (loading) return <div className="card p-4">Đang tải dữ liệu...</div>;
+  // --- XUẤT EXCEL CHI TIẾT ---
+  const exportToExcel = () => {
+    const dataToExport = stats.revenueDetails.map(booking => {
+      // Xây dựng chuỗi diễn giải chi tiết cho Excel
+      let details = `Dịch vụ: ${booking.serviceId?.name || 'Đã xóa'}`;
+      
+      // Thêm thông tin dịch vụ phụ
+      if (booking.subServices && booking.subServices.length > 0) {
+        const subNames = booking.subServices.map(s => `${s.name} (${s.price})`).join(', ');
+        details += ` | Phụ phí: ${subNames}`;
+      }
+      
+      // Thêm thông tin vận chuyển
+      if (booking.shipmentDetails && booking.shipmentDetails.distance > 0) {
+        details += ` | Vận chuyển: ${booking.shipmentDetails.distance}km`;
+        if(booking.shipmentDetails.price) {
+             details += ` (${booking.shipmentDetails.price})`;
+        }
+      }
+
+      return {
+        'Ngày giao dịch': moment(booking.bookingDate).format('DD/MM/YYYY HH:mm'),
+        'Mã đơn': booking._id.slice(-6).toUpperCase(),
+        'Khách hàng': booking.customerId?.name || 'Khách vãng lai',
+        'SĐT': booking.customerId?.phone || '',
+        'Diễn giải chi tiết': details,
+        'Tổng thanh toán (VND)': booking.totalAmount || 0
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(dataToExport);
+    
+    // Chỉnh độ rộng cột Excel cho dễ nhìn
+    ws['!cols'] = [
+        { wch: 20 }, // Ngày
+        { wch: 10 }, // Mã đơn
+        { wch: 20 }, // Khách hàng
+        { wch: 15 }, // SĐT
+        { wch: 60 }, // Diễn giải (Rộng nhất)
+        { wch: 15 }  // Tổng tiền
+    ];
+    
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Doanh thu Chi tiết');
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    saveAs(new Blob([wbout], { type: 'application/octet-stream' }), `BaoCao_DoanhThu_${moment().format('DDMMYYYY')}.xlsx`);
+  };
+
+  if (loading) return <div className="text-center p-5 mt-5"><h4>Đang tải dữ liệu Dashboard...</h4></div>;
   if (error) return (
-    <div className="card p-4">
-      <div className="alert alert-danger">{error}</div>
-      <button className="btn btn-primary mt-2" onClick={() => window.location.reload()}>Thử lại</button>
+    <div className="container mt-5">
+      <div className="alert alert-danger shadow-sm border-0">{error}</div>
+      <button className="btn btn-primary" onClick={() => window.location.reload()}>Tải lại trang</button>
     </div>
   );
 
   return (
-    <div className="card p-4">
-      <h2 className="card-title mb-4">Dashboard Quản Trị</h2>
-      <p className="card-text mb-4">Chào mừng đến với bảng điều khiển quản trị.</p>
+    <div className="admin-dashboard-container">
+      <h2 className="dashboard-title">Dashboard Quản Trị</h2>
 
-      <div className="row mb-4">
-        <div className="col-md-3 col-sm-6 mb-3">
-          <div className="card h-100 bg-primary text-white p-3">
-            <h5 className="card-title">Tổng Dịch Vụ</h5>
-            <p className="card-text display-4">{stats.totalServices}</p>
+      {/* --- PHẦN 1: THỐNG KÊ TỔNG QUAN (CARDS) --- */}
+      <div className="row g-4 mb-5">
+        <div className="col-xl-3 col-md-6">
+          <div className="card stat-card bg-gradient-primary">
+            <div className="card-body">
+              <div className="stat-label">Dịch Vụ</div>
+              <div className="stat-value">{stats.totalServices}</div>
+              <FaBoxOpen className="stat-icon" />
+            </div>
           </div>
         </div>
-        <div className="col-md-3 col-sm-6 mb-3">
-          <div className="card h-100 bg-success text-white p-3">
-            <h5 className="card-title">Tổng Tin Tức</h5>
-            <p className="card-text display-4">{stats.totalNews}</p>
+        
+        <div className="col-xl-3 col-md-6">
+          <div className="card stat-card bg-gradient-success">
+            <div className="card-body">
+              <div className="stat-label">Tin Tức</div>
+              <div className="stat-value">{stats.totalNews}</div>
+              <FaNewspaper className="stat-icon" />
+            </div>
           </div>
         </div>
-        <div className="col-md-3 col-sm-6 mb-3">
-          <div className="card h-100 bg-warning text-white p-3">
-            <h5 className="card-title">Tổng Đơn Đặt Hàng</h5>
-            <p className="card-text display-4">{stats.totalBookings}</p>
+
+        <div className="col-xl-3 col-md-6">
+          <div className="card stat-card bg-gradient-warning">
+            <div className="card-body">
+              <div className="stat-label">Đơn Đặt</div>
+              <div className="stat-value">{stats.totalBookings}</div>
+              <FaClipboardList className="stat-icon" />
+            </div>
           </div>
         </div>
-        <div className="col-md-3 col-sm-6 mb-3">
-          <div className="card h-100 bg-info text-white p-3">
-            <h5 className="card-title">Tổng Khách Hàng</h5>
-            <p className="card-text display-4">{stats.totalCustomers}</p>
+
+        <div className="col-xl-3 col-md-6">
+          <div className="card stat-card bg-gradient-info">
+            <div className="card-body">
+              <div className="stat-label">Khách Hàng</div>
+              <div className="stat-value">{stats.totalCustomers}</div>
+              <FaUsers className="stat-icon" />
+            </div>
           </div>
         </div>
-        <div className="col-md-3 col-sm-6 mb-3">
-          <div className="card h-100 bg-purple text-black p-3">
-            <h5 className="card-title">Tổng Doanh Thu</h5>
-            <p className="card-text display-4">
-              {stats.totalRevenue > 0 ? stats.totalRevenue.toLocaleString() : '0'} VND
-            </p>
+
+        {/* Card Tổng Doanh Thu */}
+        <div className="col-12">
+          <div className="card stat-card bg-gradient-purple">
+            <div className="card-body d-flex align-items-center justify-content-between px-5">
+              <div>
+                <div className="stat-label mb-2">Tổng Doanh Thu Thực Tế</div>
+                <div className="stat-value" style={{fontSize: '3rem'}}>
+                  {formatCurrency(stats.totalRevenue)}
+                </div>
+              </div>
+              <FaMoneyBillWave className="stat-icon" style={{opacity: 0.3, fontSize: '6rem', position: 'static', transform: 'none'}} />
+            </div>
           </div>
         </div>
       </div>
 
-      <h3 className="mb-3">Thống kê Doanh thu Chi tiết</h3>
-      <div className="mb-4 d-flex gap-3">
-        <div>
-          <label className="form-label">Từ ngày:</label>
-          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="form-control" />
+      {/* --- PHẦN 2: BỘ LỌC & BẢNG CHI TIẾT --- */}
+      <h4 className="mb-3 text-secondary fw-bold border-start border-4 border-success ps-3">
+        Nhật Ký Doanh Thu Chi Tiết
+      </h4>
+      
+      <div className="filter-toolbar">
+        <div className="filter-group">
+          <label><FaCalendarAlt className="me-2"/>Từ ngày:</label>
+          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="form-control filter-input" />
         </div>
-        <div>
-          <label className="form-label">Đến ngày:</label>
-          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="form-control" />
+        <div className="filter-group">
+          <label><FaCalendarAlt className="me-2"/>Đến ngày:</label>
+          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="form-control filter-input" />
         </div>
-        <button className="btn btn-primary mt-4" onClick={exportToExcel}>Xuất Excel</button>
+        <div className="ms-auto"> 
+          <button className="btn btn-export shadow-sm" onClick={exportToExcel}>
+            <FaFileExcel /> Xuất Báo Cáo Excel
+          </button>
+        </div>
       </div>
 
-      <table className="table table-bordered">
-        <thead className="table-light">
-          <tr>
-            <th>Dịch vụ</th>
-            <th>Doanh thu (VND)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Array.isArray(stats.revenueDetails) && stats.revenueDetails.length > 0 ? (
-            stats.revenueDetails.map((service, index) => (
-              <tr key={index}>
-                <td>{service.name || 'Không xác định'}</td>
-                <td>{(service.price || 0).toLocaleString()}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="2" className="text-center">Không có dữ liệu doanh thu</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      <div className="card table-card">
+        <div className="card-body p-0">
+          <div className="table-responsive">
+            <table className="table custom-table mb-0">
+              <thead>
+                <tr>
+                  <th style={{width: '5%'}}>#</th>
+                  <th style={{width: '15%'}}>Ngày</th>
+                  <th style={{width: '25%'}}>Khách Hàng</th>
+                  <th style={{width: '40%'}}>Diễn Giải (Dịch vụ & Phụ phí)</th>
+                  <th style={{width: '15%'}} className="text-end">Tổng Tiền</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.isArray(stats.revenueDetails) && stats.revenueDetails.length > 0 ? (
+                  stats.revenueDetails.map((booking, index) => (
+                    <tr key={index}>
+                      <td className="text-muted fw-bold">{index + 1}</td>
+                      
+                      {/* Cột Ngày */}
+                      <td>
+                        <div className="fw-bold text-dark">{moment(booking.bookingDate).format('DD/MM/YYYY')}</div>
+                        <div className="small text-muted">{moment(booking.bookingDate).format('HH:mm')}</div>
+                        <div className="small text-muted fst-italic">#{booking._id.slice(-6).toUpperCase()}</div>
+                      </td>
 
-      {/* Thêm modal để khắc phục lỗi share-modal.js */}
-      <div
-        id="shareModal"
-        className="modal fade"
-        tabIndex="-1"
-        aria-labelledby="shareModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="shareModalLabel">Chia sẻ</h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">Nội dung chia sẻ...</div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Đóng
-              </button>
-            </div>
+                      {/* Cột Khách Hàng */}
+                      <td>
+                        <div className="d-flex align-items-center">
+                            <div className="bg-light rounded-circle p-2 me-2 text-secondary">
+                                <FaUser size={12}/>
+                            </div>
+                            <div>
+                                <div className="fw-bold text-dark" style={{fontSize: '0.9rem'}}>
+                                    {booking.customerId?.name || 'Khách vãng lai'}
+                                </div>
+                                <div className="small text-muted" style={{fontSize: '0.8rem'}}>
+                                    {booking.customerId?.phone || ''}
+                                </div>
+                            </div>
+                        </div>
+                      </td>
+
+                      {/* Cột Diễn Giải (Chi tiết tiền) */}
+                      <td>
+                        {/* Dịch vụ chính */}
+                        <div className="mb-1 fw-bold text-primary">
+                            {booking.serviceId?.name || <span className="text-danger">Dịch vụ đã xóa</span>}
+                        </div>
+
+                        {/* Danh sách Dịch vụ phụ */}
+                        {booking.subServices && booking.subServices.length > 0 && (
+                            <div className="small text-secondary ps-3 border-start border-2 border-light mb-1">
+                                {booking.subServices.map((sub, idx) => (
+                                    <div key={idx} className="d-flex align-items-center">
+                                        <FaPlusCircle className="me-1 text-success" style={{fontSize:'0.7rem'}}/> 
+                                        {sub.name} <span className="text-muted ms-1">({formatCurrency(sub.price)})</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Vận chuyển */}
+                        {booking.shipmentDetails && booking.shipmentDetails.distance > 0 && (
+                            <div className="small text-info ps-3 border-start border-2 border-info bg-light rounded py-1 mt-1" style={{width: 'fit-content'}}>
+                                <div className="d-flex align-items-center">
+                                    <FaTruck className="me-1"/> 
+                                    <span>Vận chuyển: {booking.shipmentDetails.distance} km</span>
+                                    {/* Nếu có giá ship riêng */}
+                                    {booking.shipmentDetails.price > 0 && (
+                                        <span className="ms-1 fw-bold">({formatCurrency(booking.shipmentDetails.price)})</span>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                      </td>
+
+                      {/* Cột Tổng Tiền */}
+                      <td className="text-end">
+                          <span className="price-text fs-5">
+                              {formatCurrency(booking.totalAmount)}
+                          </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="text-center py-5 text-muted">
+                      <FaSearch className="mb-2 fs-3 d-block mx-auto"/>
+                      Không có giao dịch nào hoàn thành trong khoảng thời gian này.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
+      </div>
+
+      <div id="shareModal" className="modal fade" tabIndex="-1" aria-hidden="true">
+        <div className="modal-dialog"><div className="modal-content"></div></div>
       </div>
     </div>
   );

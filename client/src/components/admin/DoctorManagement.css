@@ -21,7 +21,7 @@
 
 /* Nút Thêm Bác sĩ (gradient) */
 .dm-btn-add {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
   color: white;
   border: none;
   padding: 0.8rem 1.5rem; /* Tăng padding */
@@ -41,7 +41,7 @@
 /* --- Bảng (Table) --- */
 .dm-table-wrapper {
   background-color: #ffffff;
-  border-radius: 0.75rem; /* Bo tròn nhiều hơn */
+  
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* Bóng mượt hơn */
   overflow: hidden; /* Quan trọng để giữ bo tròn */
 }
@@ -60,8 +60,8 @@
 }
 
 .dm-table th {
-  background-color: #f8fafc; /* Nền header bảng */
-  color: #4a5568; /* Màu chữ header */
+  background-color: #000000; /* Nền header bảng */
+  color: #fffdfd; /* Màu chữ header */
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -93,7 +93,6 @@
 .dm-btn-delete {
   border: none;
   padding: 0.6rem 0.9rem; /* Tăng padding */
-  border-radius: 0.375rem;
   font-size: 0.875rem;
   font-weight: 600; /* Đậm hơn */
   cursor: pointer;
@@ -101,20 +100,20 @@
 }
 
 .dm-btn-edit {
-  background-color: #f59e0b; /* Vàng */
+  background-color: #f79114; /* Vàng */
   color: white;
 }
 .dm-btn-edit:hover {
-  background-color: #d97706;
+  background-color: #f79114;
   transform: scale(1.05);
 }
 
 .dm-btn-delete {
-  background-color: #ef4444; /* Đỏ */
+  background-color: #8B0000; /* Đỏ */
   color: white;
 }
 .dm-btn-delete:hover {
-  background-color: #dc2626;
+  background-color: #8B0000;
   transform: scale(1.05);
 }
 

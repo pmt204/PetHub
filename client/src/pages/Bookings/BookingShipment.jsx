@@ -84,7 +84,7 @@ const BookingShipment = () => {
     if (input.length < 2) return setSuggestions([]);
     try {
       const res = await axios.get('https://rsapi.goong.io/Place/AutoComplete', {
-        params: { input, api_key: 'null' }
+        params: { input, api_key: '' }
       });
       setSuggestions(res.data.predictions || []);
     } catch (err) {

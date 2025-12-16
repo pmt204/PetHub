@@ -37,13 +37,6 @@ const doctorSchema = new mongoose.Schema(
       required: [true, 'Chuyên khoa là bắt buộc'],
       trim: true,
     },
-    categoryServices: [
-      {
-        type: Number,
-        ref: 'CategoryService', 
-        required: true
-      }
-    ],
     experienceYears: {
       type: Number,
       required: true,

@@ -1,0 +1,408 @@
+/* client/src/components/FloatingContact/FloatingContact.css */
+
+.floating-contact-wrapper {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-family: 'Quicksand', sans-serif;
+  }
+  
+  /* --- NÚT ẢNH MỚI (Mascot Button) --- */
+  .floating-btn-img {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    position: relative; /* Để chứa hiệu ứng pulse */
+    width: 70px;  /* Kích thước nút */
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 2; /* Nổi trên vòng pulse */
+  }
+  
+  .floating-btn-img:hover {
+    transform: scale(1.1) rotate(5deg); /* Phóng to và nghiêng nhẹ khi hover */
+  }
+  
+  /* Xử lý ảnh Mascot */
+  .mascot-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Đảm bảo ảnh không bị méo */
+    border-radius: 50%; /* Bo tròn ảnh */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Đổ bóng tạo chiều sâu 3D */
+    border: 3px solid #fff; /* Viền trắng làm nổi bật */
+  }
+  
+  /* Hiệu ứng khi mở menu */
+  .floating-btn-img.open {
+    transform: scale(0.9); /* Nhỏ lại một chút khi mở */
+  }
+  
+  /* --- HIỆU ỨNG PULSE (Vòng tròn lan tỏa) --- */
+  .pulse-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: rgba(139, 0, 0, 0.5); /* Màu đỏ rượu nhạt */
+    animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
+    z-index: 1; /* Nằm dưới ảnh */
+  }
+  
+  @keyframes pulse {
+    0% {
+      width: 100%;
+      height: 100%;
+      opacity: 0.7;
+    }
+    100% {
+      width: 150%; /* Lan rộng ra */
+      height: 150%;
+      opacity: 0; /* Mờ dần */
+    }
+  }
+  
+  /* --- MENU POPUP --- */
+  .contact-menu {
+    position: absolute;
+    bottom: 85px; /* Cao hơn một chút để không che nút ảnh */
+    right: 5px;
+    width: 300px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.9);
+    transform-origin: bottom right;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border: 1px solid #eee;
+  }
+  
+  .contact-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+  }
+  
+  .contact-header {
+    background-color: #8B0000;
+    color: white;
+    padding: 14px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 16px;
+    text-transform: uppercase;
+  }
+  
+  /* --- STYLE CHO MỤC CHATBOT AI MỚI --- */
+  .ai-item {
+    background-color: #f0f4ff; /* Nền hơi xanh nhạt */
+    border-left: 4px solid #6A0DAD; /* Viền tím nổi bật */
+  }
+  
+  .ai-item:hover {
+    background-color: #e6e6fa !important; /* Màu hover tím nhạt */
+  }
+  
+  .bg-ai-gradient {
+    background: linear-gradient(135deg, #6A0DAD, #0068FF); /* Gradient Tím -> Xanh */
+  }
+  
+  .ai-text {
+    color: #6A0DAD !important; /* Chữ màu tím */
+    font-weight: 800 !important;
+  }
+  
+  .ai-subtext {
+    color: #0068FF !important; /* Chữ phụ màu xanh */
+    font-weight: 600 !important;
+  }
+  
+  /* Hiệu ứng xoay icon robot khi hover */
+  .ai-item:hover .ai-icon-spin {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* --- CÁC MỤC LIÊN HỆ KHÁC (Giữ nguyên style cũ) --- */
+  .contact-list {
+    padding: 8px;
+    background-color: #fff;
+  }
+  
+  .contact-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.2s;
+    border: 1px solid transparent;
+    margin-bottom: 6px;
+    cursor: pointer;
+  }
+  
+  .contact-item:hover {
+    background-color: #FAF7F1;
+    border-color: #eee;
+  }
+  
+  .icon-box {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .bg-blue { background-color: #0068FF; }
+  .bg-green { background-color: #4CAF50; }
+  .bg-dark { background-color: #333; }
+  
+  .text-box {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .text-box strong {
+    font-size: 15px;
+    color: #0d2554;
+  }
+  
+  .text-box span {
+    font-size: 13px;
+    color: #666;
+    margin-top: 3px;
+  }
+  
+  .cursor-pointer {
+    cursor: pointer;
+  }
+  .floating-contact-wrapper {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-family: 'Quicksand', sans-serif;
+  }
+  
+  /* --- NÚT CHÍNH CUSTOM (Ảnh + Chữ) --- */
+  .floating-btn-custom {
+      display: flex;
+      align-items: center;
+      background-color: #8B0000; /* Màu đỏ chủ đạo */
+      border: 2px solid #fff;
+      border-radius: 50px; /* Bo tròn dạng viên thuốc */
+      padding: 5px 15px 5px 5px; /* Chừa chỗ cho ảnh bên trái */
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      height: 60px;
+      min-width: 140px;
+      position: relative;
+      overflow: visible; /* Để ảnh mascot lòi ra ngoài tí cho đẹp */
+  }
+  
+  .floating-btn-custom:hover {
+      transform: scale(1.05);
+      background-color: #a00000;
+  }
+  
+  /* Trạng thái Active (Khi mở menu/chat) -> Biến thành hình tròn đỏ chứa dấu X */
+  .floating-btn-custom.active {
+      width: 60px;
+      min-width: 60px;
+      padding: 0;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: #333; /* Màu tối khi đóng */
+  }
+  
+  /* Ảnh Mascot nhỏ trên nút */
+  .mascot-img-small {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+      margin-right: 8px;
+      background-color: #fff;
+      z-index: 2;
+  }
+  
+  /* Chữ LIÊN HỆ */
+  .btn-label {
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+  }
+  
+  /* Hiệu ứng Pulse Ring cho nút */
+  .pulse-ring {
+      position: absolute;
+      left: 5px; /* Canh trùng tâm với ảnh mascot */
+      top: 5px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.4);
+      animation: pulse 2s infinite;
+      z-index: 1;
+  }
+  
+  @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(1.6); opacity: 0; }
+  }
+  
+  /* --- STYLE MENU (Giữ nguyên hoặc tinh chỉnh nhẹ) --- */
+  .contact-menu {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 300px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.9);
+    transition: all 0.3s ease;
+    z-index: 9998;
+  }
+  
+  .contact-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+  }
+  
+  .contact-header {
+    background-color: #8B0000;
+    color: white;
+    padding: 14px;
+    text-align: center;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  
+  /* --- STYLE MỤC CHATBOT TRONG MENU --- */
+  .ai-item {
+      background: linear-gradient(to right, #f3e7ff, #ffffff);
+      border-left: 4px solid #6A0DAD;
+      margin-bottom: 8px !important;
+  }
+  
+  .bg-ai-gradient {
+      background: linear-gradient(135deg, #6A0DAD, #0068FF);
+  }
+  
+  .ai-icon-anim {
+      color: white;
+      /* Hiệu ứng rung nhẹ icon robot */
+      animation: robotShake 3s infinite;
+  }
+  
+  @keyframes robotShake {
+      0%, 100% { transform: rotate(0deg); }
+      10%, 30% { transform: rotate(-10deg); }
+      20%, 40% { transform: rotate(10deg); }
+      50% { transform: rotate(0deg); }
+  }
+  
+  .ai-text { color: #6A0DAD !important; }
+  .ai-subtext { color: #0068FF !important; font-size: 11px !important; }
+  
+  /* Các mục khác */
+  .contact-list { padding: 10px; background: white; }
+  .contact-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #333;
+      margin-bottom: 5px;
+      transition: background 0.2s;
+  }
+  .contact-item:hover { background-color: #FAF7F1; }
+  .icon-box {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-right: 12px; color: white;
+  }
+  .bg-blue { background: #0068FF; }
+  .bg-green { background: #4CAF50; }
+  .bg-dark { background: #333; }
+  .text-box { display: flex; flex-direction: column; }
+  .text-box strong { font-size: 14px; color: #0d2554; }
+  .text-box span { font-size: 12px; color: #666; }
+  .cursor-pointer { cursor: pointer; }
+
+  /* ... Các code cũ giữ nguyên ... */
+
+/* --- SỬA LẠI PHẦN STYLE CHO MỤC CHATBOT TRONG MENU --- */
+.ai-item {
+  background: linear-gradient(to right, #f3e7ff, #ffffff);
+  border-left: 4px solid #6A0DAD;
+  margin-bottom: 8px !important;
+}
+
+.bg-ai-gradient {
+  background: linear-gradient(135deg, #6A0DAD, #0068FF);
+  padding: 2px; /* Tạo viền gradient nhẹ cho ảnh */
+}
+
+/* Class mới cho ảnh trong menu */
+.ai-menu-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #fff; /* Viền trắng tách biệt ảnh với nền gradient */
+  transition: transform 0.3s ease;
+}
+
+/* Hiệu ứng khi hover vào dòng AI thì ảnh xoay nhẹ */
+.ai-item:hover .ai-menu-img {
+  transform: rotate(15deg) scale(1.1);
+}
+
+.ai-text { color: #6A0DAD !important; }
+.ai-subtext { color: #0068FF !important; font-size: 11px !important; }
+
+/* Ẩn hoàn toàn floating contact khi có class này trên body */
+body.modal-open .floating-contact-wrapper {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0.3s;
+}

@@ -2,19 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import HeroAbout from '../../components/Hero/HeroAbout';
+import '../../pages/About/about.css';
 
 const careTopics = [
   {
     title: 'Đồng hành cùng bạn',
-    content: 'Dịch vụ chăm sóc thú cưng NekoKin hiểu rằng thú cưng của bạn không thể diễn đạt bất cứ điều gì về cuộc sống hay triệu chứng của chúng. Vì vậy, chúng tôi bắt đầu bằng việc xây dựng mối quan hệ chặt chẽ giữa bác sĩ thú y và những người chủ. Sự thấu hiểu giữa bác sĩ thú y và chủ là điều cần thiết để phát triển một kế hoạch điều trị phù hợp. Các bác sĩ thú y của NekoKin là những chuyên gia về sức khỏe động vật, nhưng bạn mới là người hiểu rõ nhất về các bé. Do đó, ưu tiên hàng đầu của NekoKin là lắng nghe những người chủ vật nuôi và hợp tác chặt chẽ để cùng nhau mang đến cho những người bạn đồng hành thân yêu của mình một cuộc sống hạnh phúc và khỏe mạnh hơn.'
+    content: 'Dịch vụ chăm sóc thú cưng PetHub hiểu rằng thú cưng của bạn không thể diễn đạt bất cứ điều gì về cuộc sống hay triệu chứng của chúng. Vì vậy, chúng tôi bắt đầu bằng việc xây dựng mối quan hệ chặt chẽ giữa bác sĩ thú y và những người chủ. Sự thấu hiểu giữa bác sĩ thú y và chủ là điều cần thiết để phát triển một kế hoạch điều trị phù hợp. Các bác sĩ thú y của PetHub là những chuyên gia về sức khỏe động vật, nhưng bạn mới là người hiểu rõ nhất về các bé. Do đó, ưu tiên hàng đầu của PetHub là lắng nghe những người chủ vật nuôi và hợp tác chặt chẽ để cùng nhau mang đến cho những người bạn đồng hành thân yêu của mình một cuộc sống hạnh phúc và khỏe mạnh hơn.'
   },
   {
     title: 'Trung thực và minh bạch',
-    content: 'Là cha mẹ của các bé, bạn hoàn toàn có quyền được minh bạch về mọi thứ liên quan đến chăm sóc y tế cho thú cưng của mình. Đó là lý do tại sao NekoKin muốn bạn tham gia vào mọi quyết định liên quan đến việc điều trị cho thú cưng của bạn. Chúng tôi tin rằng sự hợp tác này sẽ mang lại kết quả tốt nhất cho sức khỏe và hạnh phúc của những người bạn đồng hành thân yêu.'
+    content: 'Là cha mẹ của các bé, bạn hoàn toàn có quyền được minh bạch về mọi thứ liên quan đến chăm sóc y tế cho thú cưng của mình. Đó là lý do tại sao PetHub muốn bạn tham gia vào mọi quyết định liên quan đến việc điều trị cho thú cưng của bạn. Chúng tôi tin rằng sự hợp tác này sẽ mang lại kết quả tốt nhất cho sức khỏe và hạnh phúc của những người bạn đồng hành thân yêu.'
   },
   {
     title: 'Mục tiêu',
-    content: 'Thú y không chỉ là công việc kinh doanh của NekoKin. Sức khỏe và phúc lợi động vật là sứ mệnh và niềm đam mê của chúng tôi. Thú cưng của bạn là ưu tiên hàng đầu tại đây. Chúng tôi cam kết cung cấp đội ngũ bác sĩ thú y có trình độ chuyên môn cao cùng với đội ngũ nhân viên hỗ trợ chuyên nghiệp, nhằm đảm bảo thú cưng của bạn có được sức khỏe tốt nhất.'
+    content: 'Thú y không chỉ là công việc kinh doanh của PetHub. Sức khỏe và phúc lợi động vật là sứ mệnh và niềm đam mê của chúng tôi. Thú cưng của bạn là ưu tiên hàng đầu tại đây. Chúng tôi cam kết cung cấp đội ngũ bác sĩ thú y có trình độ chuyên môn cao cùng với đội ngũ nhân viên hỗ trợ chuyên nghiệp, nhằm đảm bảo thú cưng của bạn có được sức khỏe tốt nhất.'
   },
   {
     title: 'Cách tiếp cận phù hợp',
@@ -52,7 +53,7 @@ const About = () => {
                   Thú cưng là một phần quan trọng như một thành viên gia đình của chúng ta. Vì vậy, khi thú cưng của chúng ta bị nhiễm bệnh, hiển nhiên chúng ta cũng muốn chúng được các chuyên gia tận tuỵ chăm sóc.
                 </p>
                 <p className="text-muted about-description">
-                  Chúng tôi thành lập NekoKin để đáp ứng nhu cầu cung cấp các dịch vụ chăm sóc sức khỏe và thú y đẳng cấp ở Việt Nam.
+                  Chúng tôi thành lập PetHub để đáp ứng nhu cầu cung cấp các dịch vụ chăm sóc sức khỏe và thú y đẳng cấp ở Việt Nam.
                 </p>
               </motion.div>
             </div>
@@ -66,7 +67,7 @@ const About = () => {
                   Khi nói đến sức khỏe của thú cưng, chúng tôi áp dụng các tiêu chuẩn cao nhất mà bạn có thể tìm thấy ở các bệnh viện thú y tốt nhất ở Việt Nam.
                 </p>
                 <p className="text-muted about-description">
-                  Chúng tôi luôn coi trọng việc xây dựng mối quan hệ tin cậy và lâu dài với khách hàng. NekoKin tin rằng khách hàng sẽ hoàn toàn yên tâm khi giao thú cưng của mình cho chúng tôi.
+                  Chúng tôi luôn coi trọng việc xây dựng mối quan hệ tin cậy và lâu dài với khách hàng. PetHub tin rằng khách hàng sẽ hoàn toàn yên tâm khi giao thú cưng của mình cho chúng tôi.
                 </p>
               </motion.div>
             </div>
@@ -76,7 +77,7 @@ const About = () => {
             <div className="col-12">
               <motion.img
                 src="/images/about.jpg"
-                alt="Giới thiệu NekoKin"
+                alt="Giới thiệu PetHub"
                 className="img-fluid about-image d-block mx-auto"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}

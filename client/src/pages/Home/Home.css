@@ -1,0 +1,76 @@
+/* HomeHome */
+.intro-title {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    color: #0d2554;
+    font-size: 2.5rem;
+}
+
+.intro-text {
+    font-size: 1.15rem;
+}
+
+.btn-red {
+    background-color: #8B0000;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-red:hover {
+    background-color: #660000;
+    color: white;
+}
+
+.consultation-box {
+    background-color: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    padding: 2rem;
+}
+
+.consultation-image {
+    max-width: 400px;
+}
+
+/* Style cho Card Dịch vụ */
+.card-img-custom {
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.card-title-center {
+    text-align: center;
+    font-weight: 600;
+}
+
+/* --- STYLE MỚI CHO BÁC SĨ NỔI BẬT --- */
+.doctor-card-home {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    border-radius: 15px !important;
+}
+
+.doctor-img-wrapper {
+    height: 280px;
+    overflow: hidden;
+    background-color: #f8f9fa;
+}
+
+.doctor-img-home {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    transition: transform 0.5s ease;
+}
+
+.doctor-card-home:hover .doctor-img-home {
+    transform: scale(1.05);
+}
+
+.doctor-card-home:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}

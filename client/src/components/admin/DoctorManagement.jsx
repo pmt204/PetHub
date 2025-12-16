@@ -36,7 +36,7 @@ const DoctorManagement = () => {
   const fetchDoctors = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get("/api/doctors"); // Dùng API public để fetch list
+      const { data } = await axios.get("http://localhost:5000/api/doctors"); // Dùng API public để fetch list
       setDoctors(data);
       setError(null);
     } catch (err) {
@@ -158,7 +158,7 @@ const DoctorManagement = () => {
   return (
     <div className="doctor-management">
       <div className="dm-header">
-        <h1>Quản lý Bác sĩ ({doctors.length})</h1>
+        <h1>Quản lý Bác sĩ</h1>
         <button onClick={handleAdd} className="dm-btn-add">
           Thêm Bác sĩ
         </button>
@@ -182,7 +182,7 @@ const DoctorManagement = () => {
               <tr key={doc._id}>
                 <td>
                   <img
-                    src={doc.image}
+                    src={`http://localhost:5000/api/images/${doc.image}`}
                     alt={doc.name}
                     className="doctor-image"
                     onError={(e) => { e.target.src = 'https://placehold.co/40x40/cccccc/ffffff?text=Img'; }} // Ảnh dự phòng

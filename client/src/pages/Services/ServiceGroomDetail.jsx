@@ -62,7 +62,7 @@ const ServiceGroomDetail = () => {
 
     return (
         <>
-            <div style={{ backgroundColor: '#ffff', marginTop: '40px', padding: '30px 0' }}>
+            <div style={{ marginTop: '1px' }}>
                 {/* Intro section */}
                 <section className="after-grooming">
                     <div className="container">
@@ -126,7 +126,7 @@ const ServiceGroomDetail = () => {
             </div>
 
             {/* Gallery */}
-            <section className="gallery-section px-30" >
+            <section className="gallery-section px-30 py-5" style={{ backgroundColor: '#ffff' }}>
                 <h3 className="gallery-section1 text-center mb-4">Chăm sóc cho thú cưng từ đầu đến đuôi</h3>
                 <Slider
                     dots={true}

@@ -1,264 +1,4 @@
-/* HomeHome */
-.intro-title {
-  font-family: 'Quicksand', sans-serif;
-  font-weight: 700;
-  color: #0d2554;
-  font-size: 2.5rem;
-}
-
-.intro-text {
-  font-size: 1.15rem;
-}
-
-.btn-red {
-  background-color: #8B0000;
-  color: white;
-  font-weight: 600;
-}
-
-.consultation-box {
-  background-color: white;
-  border-radius: 1.5rem;
-  /* rounded-4 */
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  /* shadow-sm */
-  padding: 2rem;
-}
-
-.consultation-image {
-  max-width: 400px;
-}
-
-.card-img-custom {
-  height: 200px;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.card-title-center {
-  text-align: center;
-  font-weight: 600;
-}
-
-/* newsSlider */
-
-.news-slider-section {
-  background-color: #fff;
-  padding-top: 3rem;
-  padding-bottom: 3rem;
-}
-
-.news-slider-title {
-  font-family: 'Quicksand', sans-serif;
-  font-weight: 700;
-  color: #0d2554;
-  font-size: 2.5rem;
-  margin-bottom: 3rem;
-  text-align: center;
-}
-
-.news-slider-container {
-  display: flex;
-  overflow-x: auto;
-  gap: 1rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  scroll-behavior: smooth;
-}
-
-.news-slider-card {
-  flex-shrink: 0;
-  width: 300px;
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 12px;
-}
-
-.news-slider-card img {
-  height: 180px;
-  object-fit: cover;
-  width: 100%;
-  border-radius: 10px;
-  transition: transform 0.3s ease;
-}
-
-.news-slider-card img:hover {
-  transform: scale(1.05);
-}
-
-.news-slider-title-text {
-  color: #0d2554;
-  font-family: 'Quicksand', sans-serif;
-}
-
-.news-slider-content {
-  color: #6c757d;
-  font-size: 0.875rem;
-  height: 40px;
-  overflow: hidden;
-}
-
-.news-slider-date {
-  color: #6c757d;
-  font-size: 0.875rem;
-}
-
-.news-slider-nav-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  background: rgba(255, 255, 255, 0.7);
-  border: none;
-  font-size: 2rem;
-  color: #0d2554;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-}
-
-.news-slider-btn-left {
-  left: -10px;
-}
-
-.news-slider-btn-right {
-  right: -10px;
-}
-
-.news-slider-more-btn {
-  background-color: #8B0000;
-  color: white;
-  font-weight: 600;
-}
-
-/* About */
-
-/* Tiêu đề chính */
-.about-title {
-  font-family: 'Quicksand', sans-serif;
-  color: #0d2554;
-  font-size: 2.5rem;
-}
-
-/* Đoạn văn mô tả */
-.about-description {
-  line-height: 1.9;
-  font-size: 1.2rem;
-}
-
-/* Hình ảnh giới thiệu */
-.about-image {
-  border-radius: 0.5rem;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-}
-
-/* Tiêu đề sứ mệnh */
-.about-mission-title {
-  font-family: 'Quicksand', sans-serif;
-  color: #0d2554;
-}
-
-/* Danh sách sứ mệnh */
-.about-mission-list {
-  line-height: 1.9;
-  font-size: 1.5rem;
-}
-
-/* Tiêu đề chăm sóc sức khỏe */
-.health-care-title {
-  font-family: 'Quicksand', sans-serif;
-  color: #0d2554;
-  font-size: 2.75rem;
-}
-
-/* Danh mục chủ đề chăm sóc */
-.health-topic {
-  cursor: pointer;
-  text-align: left;
-  font-size: 1.8rem;
-  padding-left: 12px;
-  border-left: 4px solid transparent;
-}
-
-.health-topic.selected {
-  font-weight: bold;
-  color: #8B0000;
-  border-left: 4px solid #8B0000;
-}
-
-/* Nội dung chủ đề */
-.health-content {
-  line-height: 1.8;
-  font-size: 1.25rem;
-}
-
-/* Nút quay lại */
-.back-home-btn {
-  background-color: #8B0000;
-  color: white;
-}
-
-/* newsDetial */
-
-.news-detail-section iframe {
-  max-width: 100%;
-  border-radius: 12px;
-  margin: 1.5rem 0;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-body,
-.font-quicksand {
-  font-family: 'Quicksand', sans-serif;
-}
-
-.news-detail-section {
-  padding-top: 1rem;
-  padding-bottom: 3rem;
-  background-color: white;
-  font-family: 'Quicksand', sans-serif;
-}
-
-.news-detail-container {
-  max-width: 860px;
-}
-
-.news-title {
-  font-size: 2.2rem;
-  font-weight: bold;
-  color: #0d2554;
-  margin-bottom: 0.5rem;
-}
-
-.news-content {
-  font-size: 1.125rem;
-  line-height: 1.8;
-  max-width: 720px;
-  margin: 0 auto 1rem auto;
-}
-
-.related-title {
-  margin-bottom: 1rem;
-  color: #0d2554;
-  max-width: 860px;
-}
-
-.related-item-title {
-  font-size: 1.05rem;
-  color: #0d2554;
-}
-
-.related-item-snippet {
-  font-size: 0.9rem;
-}
-
-.share-buttons {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
+/* App.css */
 .card-title {
   font-size: 1.25rem;
   font-weight: bold;
@@ -298,8 +38,9 @@ body,
 
 .service-card {
   border-radius: 1rem;
-  overflow: hidden;
+  /* overflow: hidden; */
   transition: transform 0.4s ease;
+  background-color: #0d2554;
 }
 
 .service-card:hover .service-img {
@@ -912,4 +653,22 @@ h5 {
   .testimonial-img {
     max-width: 90%;
   }
+}
+
+.slick-slide>div {
+  margin: 0 10px;
+}
+
+.slick-list {
+  margin: 0 -10px;
+}
+
+/* Quan trọng: tránh slider bị height = 0 */
+.slick-slide img,
+.bg-cover,
+.gallery-img-wrapper {
+  width: 100%;
+  height: 100%;
+  min-height: 250px;
+  object-fit: cover;
 }

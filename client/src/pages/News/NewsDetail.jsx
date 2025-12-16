@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { FaFacebook, FaEnvelope, FaFacebookMessenger } from 'react-icons/fa';
 import HeroBlog from '../../components/Hero/HeroBlog';
-import '../../App.css';
+import '../../pages/News/news.css';
 
 const NewsDetail = () => {
   const { id } = useParams();

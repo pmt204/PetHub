@@ -1,0 +1,262 @@
+/* src/pages/PetProfile.css */
+
+/* --- Cấu trúc chung --- */
+.pet-profile-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 100px 20px 40px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #334155;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+/* --- Header --- */
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.profile-title h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.profile-subtitle {
+  margin-top: 5px;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.btn-back {
+  text-decoration: none;
+  padding: 10px 20px;
+  background-color: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  color: #475569;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+/* --- History List --- */
+.history-title-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.history-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.badge-count {
+  background-color: #e2e8f0;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* --- Card Design (Quan trọng) --- */
+.history-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.history-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border-color: #cbd5e1;
+}
+
+@media (min-width: 768px) {
+  .history-card {
+    flex-direction: row;
+  }
+}
+
+/* Cột trái: Thông tin chuyên môn */
+.card-info {
+  flex: 1;
+  padding: 24px;
+}
+
+.info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.service-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2563eb; /* Màu xanh chủ đạo */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.service-name.hotel {
+  color: #ea580c; /* Màu cam cho khách sạn */
+}
+
+.order-id {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.status-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  background-color: #dcfce7;
+  color: #166534;
+  border-radius: 4px;
+}
+
+/* Grid thông tin chi tiết */
+.info-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.detail-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.detail-group p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.detail-group.notes {
+  grid-column: span 2;
+  background-color: #fffbeb;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #fef3c7;
+}
+
+.note-text {
+  font-style: italic;
+  color: #92400e;
+}
+
+/* Cột phải: Hóa đơn */
+.card-bill {
+  width: 100%;
+  background-color: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .card-bill {
+    width: 300px;
+    border-top: none;
+    border-left: 1px solid #e2e8f0;
+  }
+}
+
+.bill-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.bill-items {
+  flex: 1;
+  margin-bottom: 16px;
+}
+
+.bill-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.bill-row.main {
+  color: #334155;
+  font-weight: 500;
+}
+
+.bill-row.sub {
+  color: #64748b;
+  font-size: 12px;
+  padding-left: 10px;
+}
+
+.bill-divider {
+  border-top: 1px dashed #cbd5e1;
+  margin: 10px 0;
+}
+
+.bill-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.label-total {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.price-total {
+  font-size: 20px;
+  font-weight: 700;
+  color: #be123c; /* Màu đỏ cho giá tiền */
+}
+
+/* Các trạng thái loading/empty */
+.state-box {
+  text-align: center;
+  padding: 40px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
+}

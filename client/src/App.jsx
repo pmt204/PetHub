@@ -19,6 +19,7 @@ import ActiveBookings from './pages/Bookings/MyBookings';
 import PaymentResult from './pages/Bookings/PaymentResult';
 import BookingHistory from './pages/Bookings/BookingHistory';
 import BookingShipment from './pages/Bookings/BookingShipment';
+import BookingResult from './pages/Bookings/BookingResult';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import Account from './pages/Profiles/Account';
@@ -30,6 +31,7 @@ import ServiceHotelDetail from './pages/Services/ServiceHotelDetail';
 import ServiceShipmentDetail from './pages/Services/ServiceShipmentDetail';
 import DoctorDetail from './pages/Doctors/DoctorDetail';
 import Doctor from './pages/Doctors/DoctorPage';
+import PetProfile from './pages/Profiles/PetProfile';
 
 // Component trung gian để chọn đúng trang chi tiết dựa trên category ID
 const CategoryServiceDetail = () => {
@@ -73,6 +75,7 @@ function App() {
     <Router>
       <Routes>
         {/* Routes sử dụng Layout (cho người dùng thông thường) */}
+        <Route path="booking-result" element={<BookingResult />} />
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="home" element={<Home />} />
@@ -83,6 +86,7 @@ function App() {
           <Route path="news/:id" element={<NewsDetail />} />
           <Route path="account" element={<Account />} />
           <Route path="mypets" element={<MyPets />} />
+          <Route path="/pet-profile/:petId" element={<PetProfile />} />
           <Route path="payment-result" element={<PaymentResult />} />
           <Route path="doctors" element={<Doctor />} />
           <Route path="doctors/:id" element={<DoctorDetail />} />

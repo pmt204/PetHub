@@ -1,161 +1,279 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import moment from 'moment';
+import { FaEye, FaTruck, FaUserMd, FaMapMarkerAlt, FaCheckCircle, FaMoneyBillWave } from 'react-icons/fa';
+import './BookingManagement.css'; 
 
 const BookingManagement = () => {
   const [bookings, setBookings] = useState([]);
+  const [filteredBookings, setFilteredBookings] = useState([]);
+  // THAY ĐỔI 1: Mặc định chọn tab 'pending' thay vì 'all'
+  const [currentTab, setCurrentTab] = useState('pending'); 
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [successMsg, setSuccessMsg] = useState('');
+
+  const fetchBookings = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Vui lòng đăng nhập Admin');
+
+      const response = await axios.get('http://localhost:5000/api/bookings', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const sorted = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setBookings(sorted);
+      // Gọi filter ngay sau khi fetch để áp dụng tab mặc định
+      filterData(sorted, currentTab);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setError('Không thể tải dữ liệu đơn hàng');
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchBookings();
   }, []);
 
-  const fetchBookings = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Không tìm thấy token, vui lòng đăng nhập');
+  useEffect(() => {
+    filterData(bookings, currentTab);
+  }, [currentTab, bookings]);
 
-      const response = await fetch('http://localhost:5000/api/bookings', {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      if (!response.ok) throw new Error('Lỗi khi lấy danh sách đơn đặt dịch vụ');
-
-      const data = await response.json();
-      console.log('Fetched bookings:', data); // Log dữ liệu từ API
-
-      // Sắp xếp bookings theo trạng thái: pending → active → completed → canceled
-      const statusOrder = {
-        pending: 1,
-        active: 2,
-        completed: 3,
-        canceled: 4,
-      };
-      const sortedBookings = data.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
-
-      setBookings(sortedBookings);
-      setError(null);
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
-      setError(error.message);
-    }
+  // THAY ĐỔI 2: Logic lọc bỏ case 'all'
+  const filterData = (data, status) => {
+    setFilteredBookings(data.filter(b => b.status === status));
   };
 
   const handleUpdateStatus = async (bookingId, newStatus) => {
+    // Thêm log để debug xem ID gửi đi có đúng không
+    console.log(`Updating booking ${bookingId} to ${newStatus}`);
+    
+    if (!window.confirm(`Bạn có chắc muốn chuyển trạng thái sang "${newStatus}"?`)) return;
+    
     try {
       const token = localStorage.getItem('token');
-      if (!token) throw new Error('Không tìm thấy token, vui lòng đăng nhập');
+      await axios.put(`http://localhost:5000/api/bookings/${bookingId}`, 
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-      const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: newStatus,
-        }),
-      });
-
-      const responseData = await response.json(); // Lấy dữ liệu phản hồi
-      console.log('Update booking response:', responseData); // Log phản hồi
-
-      if (!response.ok) {
-        throw new Error(responseData.message || 'Lỗi khi cập nhật trạng thái đơn đặt dịch vụ');
-      }
-
-      setSuccess(`Cập nhật trạng thái thành ${newStatus === 'active' ? 'Đã Xác Nhận' : newStatus === 'completed' ? 'Hoàn Thành' : 'Hủy'} thành công!`);
+      setSuccessMsg(`Cập nhật trạng thái thành công!`);
+      setTimeout(() => setSuccessMsg(''), 3000);
       fetchBookings();
-      setError(null);
-    } catch (error) {
-      console.error('Error updating booking:', error);
-      setError(error.message);
-      setSuccess(null);
+    } catch (err) {
+      console.error("Lỗi cập nhật:", err);
+      // Hiển thị lỗi chi tiết từ backend
+      alert(err.response?.data?.message || 'Lỗi cập nhật trạng thái. Vui lòng kiểm tra console.');
     }
   };
 
-  // Hàm chuyển đổi trạng thái thành tên hiển thị
-  const getStatusDisplay = (status) => {
-    switch (status) {
-      case 'pending':
-        return 'Chờ Xử Lý';
-      case 'active':
-        return 'Đã Xác Nhận';
-      case 'completed':
-        return 'Hoàn Thành';
-      case 'canceled':
-        return 'Hủy';
-      default:
-        return status;
-    }
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
   };
+
+  const renderServiceDetails = (booking) => {
+    const category = booking.serviceId?.category;
+    const catId = typeof category === 'object' ? category._id : String(category);
+    const isShipmentMain = catId === '4';
+    const hasShipment = booking.shipmentDetails && booking.shipmentDetails.distance > 0;
+
+    return (
+      <div>
+        <div className="fw-bold text-primary d-flex align-items-center">
+          {booking.serviceId?.name}
+          {booking.subServices && booking.subServices.length > 0 && (
+            <div className="tooltip-container">
+              <FaEye className="tooltip-icon" />
+              <div className="tooltip-content">
+                <div className="fw-bold mb-1 border-bottom pb-1">Dịch vụ thêm:</div>
+                {booking.subServices.map((sub, idx) => (
+                  <div key={idx}>+ {sub.name} ({formatCurrency(sub.price)})</div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="small text-muted mt-1">
+          {catId === '3' && booking.checkIn && (
+            <div>
+              <div>In: {moment(booking.checkIn).format('DD/MM/YYYY')}</div>
+              <div>Out: {moment(booking.checkOut).format('DD/MM/YYYY')}</div>
+            </div>
+          )}
+
+          {(isShipmentMain || hasShipment) && booking.shipmentDetails && (
+            <div className="mt-1">
+              <div className="d-flex align-items-center text-info">
+                <FaTruck className="me-1"/> 
+                <span>{booking.shipmentDetails.distance} km</span>
+                <div className="tooltip-container ms-1">
+                  <FaMapMarkerAlt className="tooltip-icon" style={{color: '#0dcaf0'}}/>
+                  <div className="tooltip-content" style={{width: '300px'}}>
+                    <div><strong>Đón:</strong> {booking.shipmentDetails.pickupAddress}</div>
+                    <div className="my-1 text-center">↓</div>
+                    <div><strong>Trả:</strong> {booking.shipmentDetails.dropoffAddress}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {booking.doctorId && (
+            <div className="text-success"><FaUserMd className="me-1"/>{booking.doctorId.name}</div>
+          )}
+          
+          {catId !== '3' && !isShipmentMain && (
+             <div>Hẹn: {moment(booking.bookingDate).format('HH:mm - DD/MM/YYYY')}</div>
+          )}
+           {isShipmentMain && (
+             <div>Ngày đi: {moment(booking.bookingDate).format('HH:mm - DD/MM/YYYY')}</div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  if (loading) return <div className="text-center p-5">Đang tải dữ liệu quản trị...</div>;
 
   return (
-    <div className="card p-4">
-      <h2 className="card-title mb-4">Quản Lý Đơn Đặt Dịch Vụ</h2>
-      {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
-      <table className="table table-striped table-bordered">
-        <thead className="table-dark">
-          <tr>
-            <th>#</th>
-            <th>Khách Hàng</th>
-            <th>Thú Cưng</th>
-            <th>Dịch Vụ</th>
-            <th>Ngày Hẹn</th>
-            <th>Ngày Nhận Phòng</th>
-            <th>Ngày Trả Phòng</th>
-            <th>Trạng Thái</th>
-            <th>Ghi Chú</th>
-            <th>Hành Động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bookings.map((booking, index) => (
-            <tr key={booking._id}>
-              <td>{index + 1}</td>
-              <td>{booking.customerId?.name || 'N/A'}</td>
-              <td>{booking.petId?.name || 'N/A'} ({booking.petId?.type || 'N/A'})</td>
-              <td>{booking.serviceId?.name || 'N/A'}</td>
-              <td>
-                {booking.serviceId?.category !== 3
-                  ? new Date(booking.bookingDate).toLocaleString('vi-VN', {
-                      dateStyle: 'short',
-                      timeStyle: 'short',
-                    })
-                  : 'N/A'}
-              </td>
-              <td>{booking.checkIn ? new Date(booking.checkIn).toLocaleDateString('vi-VN') : 'N/A'}</td>
-              <td>{booking.checkOut ? new Date(booking.checkOut).toLocaleDateString('vi-VN') : 'N/A'}</td>
-              <td>{getStatusDisplay(booking.status)}</td>
-              <td>{booking.notes || 'Không có ghi chú'}</td>
-              <td>
-                <div className="d-flex flex-column gap-2">
-                  <button
-                    className="btn btn-primary btn-sm"
-                    onClick={() => handleUpdateStatus(booking._id, 'active')}
-                    disabled={booking.status === 'active' || booking.status === 'completed' || booking.status === 'canceled'}
-                  >
-                    Xác Nhận
-                  </button>
-                  <button
-                    className="btn btn-success btn-sm"
-                    onClick={() => handleUpdateStatus(booking._id, 'completed')}
-                    disabled={booking.status !== 'active' || booking.status === 'completed' || booking.status === 'canceled'}
-                  >
-                    Hoàn Thành
-                  </button>
-                  <button
-                    className="btn btn-warning btn-sm"
-                    onClick={() => handleUpdateStatus(booking._id, 'canceled')}
-                    disabled={booking.status === 'completed' || booking.status === 'canceled'}
-                  >
-                    Hủy
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="admin-booking-container">
+      <h2 className="mb-4 fw-bold text-dark border-start border-5 border-primary ps-3">Quản Lý Đơn Đặt Dịch Vụ</h2>
+
+      {successMsg && <div className="alert alert-success shadow-sm">{successMsg}</div>}
+      {error && <div className="alert alert-danger shadow-sm">{error}</div>}
+
+      {/* --- TAB FILTERS (Đã bỏ tab Tất cả) --- */}
+      <div className="status-tabs">
+        <button 
+          className={`tab-btn ${currentTab === 'pending' ? 'active' : ''}`} 
+          onClick={() => setCurrentTab('pending')}>
+          Chờ xử lý ({bookings.filter(b => b.status === 'pending').length})
+        </button>
+        <button 
+          className={`tab-btn ${currentTab === 'active' ? 'active' : ''}`} 
+          onClick={() => setCurrentTab('active')}>
+          Đang thực hiện ({bookings.filter(b => b.status === 'active').length})
+        </button>
+        <button 
+          className={`tab-btn ${currentTab === 'completed' ? 'active' : ''}`} 
+          onClick={() => setCurrentTab('completed')}>
+          Hoàn thành ({bookings.filter(b => b.status === 'completed').length})
+        </button>
+        <button 
+          className={`tab-btn ${currentTab === 'canceled' ? 'active' : ''}`} 
+          onClick={() => setCurrentTab('canceled')}>
+          Đã hủy ({bookings.filter(b => b.status === 'canceled').length})
+        </button>
+      </div>
+
+      <div className="card admin-card">
+        <div className="table-responsive">
+          <table className="table table-hover admin-table mb-0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Khách Hàng</th>
+                <th>Thú Cưng</th>
+                <th>Thông Tin Dịch Vụ</th>
+                <th>Tổng Tiền</th>
+                <th>Thanh Toán</th>
+                <th>Trạng Thái</th>
+                <th>Hành Động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredBookings.length === 0 ? (
+                <tr><td colSpan="8" className="text-center py-4 text-muted">Không có đơn hàng nào trong mục này.</td></tr>
+              ) : (
+                filteredBookings.map((booking, index) => (
+                  <tr key={booking._id}>
+                    <td>{index + 1}</td>
+                    
+                    <td className="customer-info">
+                      <span className="fw-bold">{booking.customerId?.name || 'N/A'}</span>
+                      <small>{booking.customerId?.phone || '---'}</small>
+                    </td>
+
+                    <td>
+                      <span className="badge bg-light text-dark border">
+                        {booking.petId?.name} ({booking.petId?.type === 'cat' ? 'Mèo' : 'Chó'})
+                      </span>
+                    </td>
+
+                    <td>{renderServiceDetails(booking)}</td>
+
+                    <td className="fw-bold text-danger">
+                      {formatCurrency(booking.totalAmount)}
+                    </td>
+
+                    <td>
+                      {booking.paymentStatus === 'success' ? (
+                        <span className="badge bg-success"><FaMoneyBillWave className="me-1"/>Đã TT</span>
+                      ) : (
+                        <span className="badge bg-warning text-dark">Chưa TT</span>
+                      )}
+                      <div className="small text-muted mt-1 text-uppercase">{booking.paymentMethod}</div>
+                    </td>
+
+                    <td>
+                      {booking.status === 'pending' && <span className="badge bg-warning text-dark">Chờ xử lý</span>}
+                      {booking.status === 'active' && <span className="badge bg-primary">Đang thực hiện</span>}
+                      {booking.status === 'completed' && <span className="badge bg-success">Hoàn thành</span>}
+                      {booking.status === 'canceled' && <span className="badge bg-danger">Đã hủy</span>}
+                    </td>
+
+                    <td>
+                      <div className="d-flex flex-column gap-2">
+                        {booking.status === 'pending' && (
+                          <>
+                            <button 
+                              className="btn btn-sm btn-primary"
+                              onClick={() => handleUpdateStatus(booking._id, 'active')}
+                            >
+                              Xác nhận đơn
+                            </button>
+                            <button 
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => handleUpdateStatus(booking._id, 'canceled')}
+                            >
+                              Hủy đơn
+                            </button>
+                          </>
+                        )}
+
+                        {booking.status === 'active' && (
+                          <>
+                            <button 
+                              className="btn btn-sm btn-success"
+                              onClick={() => handleUpdateStatus(booking._id, 'completed')}
+                            >
+                              Hoàn thành
+                            </button>
+                            <button 
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => handleUpdateStatus(booking._id, 'canceled')}
+                            >
+                              Hủy đơn
+                            </button>
+                          </>
+                        )}
+                        
+                        {(booking.status === 'completed' || booking.status === 'canceled') && (
+                           <span className="text-muted small fst-italic">Đã đóng</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };

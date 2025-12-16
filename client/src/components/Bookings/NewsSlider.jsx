@@ -18,9 +18,11 @@ const NewsSlider = ({ featuredNews }) => {
     };
 
     return (
-        <section className="news-slider-section">
+        <section className="news-slider-section py-5" style={{ backgroundColor: '#FAF7F1' }}>
             <div className="container position-relative">
-                <h2 className="news-slider-title">Cập nhật thông tin mới nhất!</h2>
+                <h2 className="news-slider-title text-center mb-4" style={{ fontFamily: 'Quicksand, sans-serif', fontWeight: '700', color: '#0d2554' }}>
+                    Cập nhật thông tin mới nhất!
+                </h2>
 
                 <div className="news-slider-container" ref={sliderRef}>
                     {featuredNews.map((item) => (

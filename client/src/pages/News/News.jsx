@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import HeroBlog from '../../components/Hero/HeroBlog';
+import '../../pages/News/news.css';
 
 const News = () => {
   const [news, setNews] = useState([]);
   const [topics, setTopics] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState('Tất cả');
-  const [currentPage, setCurrentPage] = useState(1);
+
+  const [displayLimit, setDisplayLimit] = useState(6);
   const newsPerPage = 8;
 
   useEffect(() => {
@@ -23,27 +25,51 @@ const News = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    setDisplayLimit(7); // Reset giới hạn hiển thị khi đổi Topic
   }, [selectedTopic]);
 
   const filteredNews = selectedTopic === 'Tất cả' ? news : news.filter(item => item.topic === selectedTopic);
+
+  // Bài viết mới nhất (Luôn hiển thị bài đầu tiên nếu có)
   const latestNews = filteredNews[0];
+
+  // Các bài viết còn lại (Bắt đầu từ vị trí 1)
   const remainingNews = filteredNews.slice(1);
-  const indexOfLastNews = currentPage * newsPerPage;
-  const currentNews = remainingNews.slice(0, indexOfLastNews);
-  const totalPages = Math.ceil(remainingNews.length / newsPerPage);
+
+  // Lấy các bài viết còn lại để hiển thị, dựa trên displayLimit
+  const currentNews = remainingNews.slice(0, displayLimit - 1); // latestNews đã chiếm 1 vị trí
+
+  const totalAvailableNews = filteredNews.length;
 
   const loadMore = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+    // Tăng giới hạn hiển thị lên newsPerPage
+    setDisplayLimit(prevLimit => prevLimit + newsPerPage);
   };
 
+  // Kiểm tra xem còn bài viết nào để tải nữa không
+  const hasMore = displayLimit < totalAvailableNews;
+
+  // --- Component nhỏ để cắt văn bản ---
+  const TextTruncate = ({ children, maxLines, className }) => (
+    <p className={className} style={{
+      overflow: 'hidden',
+      display: '-webkit-box',
+      WebkitLineClamp: maxLines,
+      WebkitBoxOrient: 'vertical',
+      marginBottom: '0.5rem',
+    }}>
+      {children}
+    </p>
+  );
+  // ------------------------------------
+
+
   return (
-    <section className="news-section pt-5 pb-5" style={{ backgroundColor: '#fffaf4' }}>
+    <section className="news-section pb-5" style={{ backgroundColor: '#fffaf4' }}>
       <HeroBlog />
       <div className="container mt-5 pt-5">
         <div className="row">
-          {/* Cột trái: danh mục chủ đề */}
+          {/* Cột trái: danh mục chủ đề (Giữ nguyên) */}
           <div className="col-md-3 mb-4">
             <div className="bg-white rounded shadow-sm p-3">
               <h5 className="fw-bold mb-3" style={{ fontFamily: 'Quicksand, sans-serif', color: '#0d2554', fontSize: '1.25rem' }}>Topic</h5>
@@ -51,7 +77,7 @@ const News = () => {
                 {topics.map((topic, index) => (
                   <li
                     key={index}
-                    onClick={() => { setSelectedTopic(topic); setCurrentPage(1); }}
+                    onClick={() => setSelectedTopic(topic)}
                     style={{
                       cursor: 'pointer',
                       fontWeight: selectedTopic === topic ? 'bold' : 'normal',
@@ -74,13 +100,13 @@ const News = () => {
           <div className="col-md-9">
             <h2 className="text-start mb-4" style={{ fontFamily: 'Quicksand, sans-serif', fontWeight: 700, color: '#0d2554' }}>{selectedTopic}</h2>
 
-            {/* Bài viết mới nhất */}
+            {/* Bài viết mới nhất (Bài 1) */}
             {latestNews && (
               <div className="row mb-5">
                 <div className="col-md-6">
                   <Link to={`/news/${latestNews._id}`} className="text-decoration-none">
                     <img
-                      src={`http://localhost:5000/api/images/${latestNews.image}`} // Tải từ backend
+                      src={`http://localhost:5000/api/images/${latestNews.image}`}
                       alt={latestNews.title}
                       className="img-fluid rounded w-100 hover-zoom"
                       style={{ objectFit: 'cover', maxHeight: '300px', transition: 'transform 0.3s ease' }}
@@ -116,14 +142,14 @@ const News = () => {
               </div>
             )}
 
-            {/* Danh sách bài viết còn lại */}
-            <div className="row g-4">
+            {/* Danh sách 5 bài viết còn lại (Vị trí 2-6 và hơn nữa) */}
+            <div className="row g-4 d-flex align-items-stretch">
               {currentNews.length > 0 ? (
                 currentNews.map((item) => (
                   <div className="col-12 col-md-6 col-lg-4" key={item._id}>
                     <div
-                      style={{ fontFamily: 'Quicksand, sans-serif', color: '#0d2554', backgroundColor: '#fffaf4', transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
-                      className="p-2 rounded hover-highlight"
+                      style={{ fontFamily: 'Quicksand, sans-serif', color: '#0d2554', backgroundColor: '#fffaf4', transition: 'transform 0.3s ease, box-shadow 0.3s ease', height: '100%' }}
+                      className="p-2 rounded hover-highlight d-flex flex-column"
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = 'scale(1.02)';
                         e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
@@ -135,22 +161,29 @@ const News = () => {
                     >
                       <Link to={`/news/${item._id}`} className="text-decoration-none ">
                         <img
-                          src={`http://localhost:5000/api/images/${item.image}`} // Tải từ backend
+                          src={`http://localhost:5000/api/images/${item.image}`}
                           alt={item.title}
                           className="img-fluid rounded mb-3 hover-zoom"
                           onError={(e) => (e.target.src = '/images/default_news.jpg')}
                           style={{ objectFit: 'cover', height: '200px', width: '100%', transition: 'transform 0.3s ease' }}
                         />
                       </Link>
-                      <h5 style={{ color: '#0d2554' }}>
-                        <Link to={`/news/${item._id}`} className="text-decoration-none " style={{ fontWeight: 700, color: '#0d2554' }}>
-                          {item.title}
-                        </Link>
-                      </h5>
-                      <p className="text-muted">{item.content}</p>
+
+                      <div className="card-body-content flex-grow-1">
+                        <h5 style={{ color: '#0d2554' }}>
+                          <Link to={`/news/${item._id}`} className="text-decoration-none " style={{ fontWeight: 700, color: '#0d2554' }}>
+                            {item.title}
+                          </Link>
+                        </h5>
+
+                        <TextTruncate maxLines={3} className="text-muted">
+                          {item.content}
+                        </TextTruncate>
+                      </div>
+
                       <Link
-                        to={`/news/${item._id}`} // Sửa link để trỏ đúng đến bài viết
-                        className="text-decoration-none"
+                        to={`/news/${item._id}`}
+                        className="text-decoration-none mt-2"
                         style={{ color: '#8B0000', fontWeight: 'bold' }}
                         onMouseEnter={(e) => {
                           const span = e.currentTarget.querySelector('span');
@@ -173,8 +206,8 @@ const News = () => {
               )}
             </div>
 
-            {/* Nút tải thêm */}
-            {currentPage < totalPages && (
+            {/* NÚT TẢI THÊM */}
+            {hasMore && (
               <div className="row mt-4">
                 <div className="col-12 text-center">
                   <button

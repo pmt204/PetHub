@@ -1,0 +1,144 @@
+.admin-dashboard-container {
+  background-color: #f8f9fa; /* Nền xám nhạt dịu mắt */
+  min-height: 100vh;
+  padding: 30px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dashboard-title {
+  color: #2c3e50;
+  font-weight: 700;
+  margin-bottom: 30px;
+  border-left: 5px solid #0d6efd;
+  padding-left: 15px;
+}
+
+/* --- STAT CARDS --- */
+.stat-card {
+  border: none;
+  border-radius: 15px;
+  color: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.stat-card .card-body {
+  position: relative;
+  z-index: 2;
+}
+
+/* Gradient Backgrounds */
+.bg-gradient-primary { background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); }
+.bg-gradient-success { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
+.bg-gradient-warning { background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%); }
+.bg-gradient-info    { background: linear-gradient(135deg, #36b9cc 0%, #258391 100%); }
+.bg-gradient-purple  { background: linear-gradient(135deg, #6f42c1 0%, #4e2c92 100%); }
+
+.stat-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3.5rem;
+  opacity: 0.2;
+  color: white;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+.stat-label {
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  opacity: 0.9;
+}
+
+/* --- FILTER TOOLBAR --- */
+.filter-toolbar {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.filter-input {
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  padding: 8px 12px;
+}
+
+.btn-export {
+  background-color: #207245; /* Màu Excel */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.btn-export:hover {
+  background-color: #155d36;
+  color: white;
+}
+
+/* --- DATA TABLE --- */
+.table-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  overflow: hidden;
+  border: none;
+}
+
+.custom-table thead th {
+  background-color: #f8f9fc;
+  color: #4e73df;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  border-bottom: 2px solid #e3e6f0;
+  padding: 15px;
+}
+
+.custom-table tbody td {
+  padding: 15px;
+  vertical-align: middle;
+  border-bottom: 1px solid #e3e6f0;
+  color: #5a5c69;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.price-text {
+  color: #1cc88a;
+  font-weight: 700;
+}

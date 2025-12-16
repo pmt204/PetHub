@@ -57,7 +57,7 @@ const ServiceHotelDetail = () => {
 
     return (
         <>
-            <section className="hotel-header py-5 bg-light mt-5" style={{ backgroundColor: '#FAF7F1' }} data-aos="fade-up">
+            <section className="hotel-header py-5 bg-light aos-init aos-animate" style={{ backgroundColor: '#FAF7F1' }} data-aos="fade-up">
                 <div className="container">
                     <h3 className="heading text-center mb-4">Khách sạn thú cưng</h3>
                     <div className="row justify-content-center">

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const moment = require('moment');
 const Booking = require('../models/Booking');
 const Service = require('../models/Service');
 const Pet = require('../models/Pet');
@@ -6,12 +7,161 @@ const Customer = require('../models/Customer');
 const Doctor = require('../models/Doctors');
 const {createPaymentUrl} = require('./paymentVNPayController');
 const {createMoMoPayment} = require('./paymentMoMoController');
+const { calculateDistance } = require('../services/mapService');
+const SHOP_ADDRESS = "57 Đường Số 31, Linh Đông, Thủ Đức, Thành phố Hồ Chí Minh";
 
 const getTimeString = (date) => {
   const d = new Date(date);
   const hour = String(d.getHours()).padStart(2, '0');
   const minute = String(d.getMinutes()).padStart(2, '0');
   return `${hour}:${minute}`; 
+};
+
+// ==================== API CHÍNH: ĐẶT LỊCH GỘP (DỊCH VỤ + VẬN CHUYỂN) ====================
+exports.createUnifiedBooking = async (req, res) => {
+    const {
+        serviceId,
+        petId,
+        doctorId,
+        bookingDate,       // bắt buộc (dạng ISO string hoặc timestamp)
+        checkIn,           // cho khách sạn
+        checkOut,          // cho khách sạn
+        subServiceIds = [],
+        notes = '',
+
+        // PHẦN VẬN CHUYỂN
+        needsTransport = false,
+        transportType = null, // 'pickup' | 'return' | 'both'
+        homeAddress = '',
+        selectedTransportServiceId = null
+    } = req.body;
+
+    const customerId = req.user.customerId;
+
+    // === VALIDATE BẮT BUỘC ===
+    if (!serviceId || !petId || !bookingDate) {
+        return res.status(400).json({
+            message: 'Thiếu thông tin bắt buộc: dịch vụ, thú cưng, ngày đặt'
+        });
+    }
+
+    try {
+        // 1. Lấy dịch vụ chính
+        const mainService = await Service.findById(serviceId);
+        if (!mainService) {
+            return res.status(404).json({ message: 'Dịch vụ không tồn tại' });
+        }
+
+        // 2. Kiểm tra thú cưng thuộc về khách
+        const pet = await Pet.findById(petId);
+        if (!pet || pet.customerId.toString() !== customerId.toString()) {
+            return res.status(403).json({ message: 'Thú cưng không thuộc về bạn' });
+        }
+
+        // 3. Xác định ngày đặt
+        const finalBookingDate = new Date(bookingDate);
+        if (isNaN(finalBookingDate.getTime())) {
+            return res.status(400).json({ message: 'Ngày đặt không hợp lệ' });
+        }
+
+        // 4. Tính tiền dịch vụ chính
+        let totalAmount = mainService.price;
+
+        // Xử lý khách sạn (category 3)
+        if (mainService.category === 3) {
+            if (!checkIn || !checkOut) {
+                return res.status(400).json({ message: 'Khách sạn cần ngày nhận và trả phòng' });
+            }
+            const days = moment(checkOut).diff(moment(checkIn), 'days') || 1;
+            totalAmount *= days;
+        }
+
+        // 5. Tính tiền dịch vụ phụ
+        if (subServiceIds.length > 0) {
+            const subs = await Service.find({ _id: { $in: subServiceIds } });
+            totalAmount += subs.reduce((sum, s) => sum + s.price, 0);
+        }
+
+        // 6. XỬ LÝ VẬN CHUYỂN (NẾU CÓ)
+        let shipmentDetails = null;
+        if (needsTransport && homeAddress && selectedTransportServiceId) {
+            const transportService = await Service.findById(selectedTransportServiceId);
+            if (!transportService || String(transportService.category) !== '4') {
+                return res.status(400).json({ message: 'Dịch vụ vận chuyển không hợp lệ' });
+            }
+
+            let origin = homeAddress.trim();
+            let destination = SHOP_ADDRESS;
+
+            if (transportType === 'return' || transportType === 'both') {
+                origin = SHOP_ADDRESS;
+                destination = homeAddress.trim();
+            }
+
+            const distanceData = await calculateDistance(origin, destination);
+            const distanceKm = Math.round((distanceData.distanceValue / 1000) * 10) / 10;
+            const trips = transportType === 'both' ? 2 : 1;
+            const transportFee = transportService.price * distanceKm * trips;
+
+            totalAmount += transportFee;
+
+            shipmentDetails = {
+                pickupAddress: transportType.includes('pickup') ? homeAddress.trim() : SHOP_ADDRESS,
+                dropoffAddress: transportType.includes('return') ? homeAddress.trim() : SHOP_ADDRESS,
+                distance: distanceKm * trips,
+                duration: distanceData.durationText,
+                price: transportFee, // Lưu giá ship riêng để updateBooking dùng lại
+                shipmentType: transportService.name.toLowerCase().includes('express') ? 'express' : 'standard'
+            };
+        }
+
+        // 7. Tạo booking cuối cùng
+        const bookingData = {
+            customerId,
+            petId,
+            serviceId,
+            doctorId: mainService.category === 1 ? doctorId : null,
+            bookingDate: finalBookingDate,
+            checkIn: checkIn ? new Date(checkIn) : undefined,
+            checkOut: checkOut ? new Date(checkOut) : undefined,
+            subServices: subServiceIds,
+            notes: notes.trim(),
+            totalAmount: Math.round(totalAmount),
+            shipmentDetails: shipmentDetails || undefined,
+            status: 'pending',
+            paymentStatus: 'pending',
+            paymentMethod: 'cod'
+        };
+
+        const booking = new Booking(bookingData);
+        const savedBooking = await booking.save();
+
+        // Populate để frontend hiển thị đẹp
+        const populatedBooking = await Booking.findById(savedBooking._id)
+            .populate('serviceId', 'name price category')
+            .populate('petId', 'name type')
+            .populate('customerId', 'name phone')
+            .populate('doctorId', 'name image specialty')
+            .populate('subServices', 'name price');
+
+        return res.status(201).json({
+            success: true,
+            message: 'Đặt lịch thành công!',
+            data: populatedBooking,
+            summary: {
+                totalAmount: totalAmount.toLocaleString('vi-VN') + 'đ',
+                hasTransport: needsTransport,
+                transportFee: needsTransport ? (totalAmount - mainService.price * (mainService.category === 3 ? moment(checkOut).diff(moment(checkIn), 'days') || 1 : 1)) : 0
+            }
+        });
+
+    } catch (error) {
+        console.error('Lỗi tạo đơn gộp:', error);
+        return res.status(500).json({
+            message: 'Đã có lỗi xảy ra khi đặt lịch',
+            error: error.message
+        });
+    }
 };
 
 exports.checkAvailability = async (req, res) => {
@@ -235,167 +385,119 @@ exports.getAllBookings = async (req, res) => {
     }
 };
 
+// ==================== [ĐÃ SỬA] UPDATE BOOKING ====================
 exports.updateBooking = async (req, res) => {
-    const { bookingDate, serviceId, petId, checkIn, checkOut, subServiceIds, doctorId, status, notes, paymentStatus, paymentMethod, paymentDetails } = req.body;
+    const { 
+        bookingDate, serviceId, petId, checkIn, checkOut, 
+        subServiceIds, doctorId, status, notes, 
+        paymentStatus, paymentMethod, paymentDetails 
+    } = req.body;
 
     try {
         const booking = await Booking.findById(req.params.id);
-        if (!booking) {
-            return res.status(404).json({ message: 'Booking không tồn tại.' });
-        }
+        if (!booking) return res.status(404).json({ message: 'Booking không tồn tại' });
 
-        if (subServiceIds !== undefined) {
-             // Basic validation: must be an array or null/undefined (handled by `!== undefined`)
-            if (!Array.isArray(subServiceIds)) {
-                return res.status(400).json({ message: 'Dịch vụ phụ phải là một danh sách (array).' });
-            }
-            booking.subServices = subServiceIds;
-        }
-
+        // Cho phép Admin cập nhật thoải mái, User thì check quyền
         if (req.user.role !== 'admin' && booking.customerId.toString() !== req.user.customerId) {
-            return res.status(403).json({ message: 'Không được phép: Bạn không có quyền cập nhật booking này.' });
+            return res.status(403).json({ message: 'Không có quyền cập nhật' });
         }
 
-        let newBookingDate = booking.bookingDate;
-        if (bookingDate) {
-            const bookingDateObj = new Date(bookingDate);
-            if (isNaN(bookingDateObj)) {
-                return res.status(400).json({ message: 'Ngày đặt không hợp lệ.' });
-            }
-            newBookingDate = bookingDateObj;
+        // --- VALIDATE LOGIC CHUYỂN TRẠNG THÁI (Optional - tránh lỗi logic) ---
+        // Nếu đang là completed/canceled thì không được quay lại pending/active (tùy nghiệp vụ)
+        if ((booking.status === 'completed' || booking.status === 'canceled') && (status === 'pending' || status === 'active')) {
+             return res.status(400).json({ message: `Không thể chuyển từ trạng thái ${booking.status} về ${status}` });
         }
-        booking.bookingDate = newBookingDate;
 
-        if (serviceId) {
-            const service = await Service.findById(serviceId);
-            if (!service) return res.status(404).json({ message: 'Dịch vụ không tồn tại.' });
-            booking.serviceId = serviceId;
-        }
-        if (petId) {
-            const pet = await Pet.findById(petId);
-            if (!pet) return res.status(404).json({ message: 'Thú cưng không tồn tại.' });
-            if (req.user.role !== 'admin' && pet.customerId.toString() !== req.user.customerId) {
-                return res.status(403).json({ message: 'Không được phép: Bạn không sở hữu thú cưng này.' });
-            }
-            booking.petId = petId;
-        }
-        if (doctorId !== undefined) { 
-            booking.doctorId = doctorId;
-        }
+        // --- CỜ TÍNH LẠI TIỀN ---
+        let needsPriceRecalculation = false;
+
+        // Cập nhật thông tin (chỉ set cờ nếu thay đổi dữ liệu cốt lõi)
+        if (bookingDate) { booking.bookingDate = new Date(bookingDate); needsPriceRecalculation = true; }
+        if (serviceId && serviceId !== booking.serviceId.toString()) { booking.serviceId = serviceId; needsPriceRecalculation = true; }
+        if (petId) booking.petId = petId;
+        if (doctorId !== undefined) booking.doctorId = doctorId || null;
+        
+        // QUAN TRỌNG: Cập nhật status
         if (status) {
-            if (!['pending', 'active', 'completed', 'canceled'].includes(status)) {
-                return res.status(400).json({ message: 'Trạng thái không hợp lệ.' });
-            }
-            if (status === 'completed' && booking.status !== 'active') {
-                return res.status(400).json({ message: 'Đơn phải được xác nhận (active) trước khi hoàn thành (completed).' });
+            // Nếu chuyển sang Active và là Hotel -> Check phòng trống lại lần nữa cho chắc
+            const currentService = await Service.findById(booking.serviceId);
+            if (status === 'active' && currentService.category === 3) {
+                const checkInDate = booking.checkIn;
+                const checkOutDate = booking.checkOut;
+                
+                // Đếm số phòng đang active trong khoảng thời gian này (trừ đơn hiện tại)
+                const overlapping = await Booking.countDocuments({
+                    serviceId: booking.serviceId,
+                    status: 'active', // Chỉ tính đơn đã active
+                    _id: { $ne: booking._id },
+                    $or: [{ checkIn: { $lte: checkOutDate }, checkOut: { $gte: checkInDate } }]
+                });
+
+                if (overlapping >= currentService.totalRooms) {
+                    return res.status(400).json({ message: `Hết phòng trong khoảng thời gian này (Đã có ${overlapping} đơn xác nhận).` });
+                }
             }
             booking.status = status;
         }
-        if (notes !== undefined) {
-            booking.notes = notes;
+
+        if (notes !== undefined) booking.notes = notes;
+        if (paymentStatus) booking.paymentStatus = paymentStatus;
+        if (paymentMethod) booking.paymentMethod = paymentMethod;
+        if (paymentDetails) booking.paymentDetails = paymentDetails;
+
+        if (subServiceIds !== undefined) {
+            const oldSubs = booking.subServices.map(s => s.toString()).sort().join(',');
+            const newSubs = Array.isArray(subServiceIds) ? subServiceIds.sort().join(',') : '';
+            if (oldSubs !== newSubs) { booking.subServices = subServiceIds; needsPriceRecalculation = true; }
         }
 
-        if (paymentStatus) {
-            if (!['pending', 'success', 'failed'].includes(paymentStatus)) {
-                return res.status(400).json({ message: 'Trạng thái thanh toán không hợp lệ.' });
-            }
-            booking.paymentStatus = paymentStatus;
+        if (checkIn || checkOut) {
+            if (checkIn) booking.checkIn = new Date(checkIn);
+            if (checkOut) booking.checkOut = new Date(checkOut);
+            needsPriceRecalculation = true;
         }
 
-        if (paymentMethod) {
-            booking.paymentMethod = paymentMethod;
+        // --- TÍNH LẠI TIỀN ---
+        if (needsPriceRecalculation) {
+            const currentService = await Service.findById(booking.serviceId);
+            let newBaseAmount = 0;
+
+            if (currentService.category === 3) { // Hotel
+                if (!booking.checkIn || !booking.checkOut) return res.status(400).json({ message: 'Thiếu ngày check-in/out' });
+                const days = Math.ceil((booking.checkOut - booking.checkIn) / (1000 * 3600 * 24));
+                newBaseAmount = currentService.price * (days > 0 ? days : 1);
+            } else if (currentService.category === 4) { // Shipment chính
+                newBaseAmount = booking.totalAmount; // Giữ nguyên giá cũ
+            } else {
+                newBaseAmount = currentService.price;
+            }
+
+            if (booking.subServices && booking.subServices.length > 0) {
+                const SubService = mongoose.model('Service'); // Đảm bảo model Service đã load
+                const subServices = await SubService.find({ _id: { $in: booking.subServices } });
+                newBaseAmount += subServices.reduce((sum, s) => sum + s.price, 0);
+            }
+
+            if (currentService.category !== 4 && booking.shipmentDetails && booking.shipmentDetails.price) {
+                newBaseAmount += booking.shipmentDetails.price;
+            }
+
+            booking.totalAmount = newBaseAmount;
         }
 
-        if (paymentDetails) {
-            // Ghi đè hoặc gộp thông tin thanh toán
-            booking.paymentDetails = paymentDetails;
-        }
-
-        const currentService = await Service.findById(serviceId || booking.serviceId);
-        if (!currentService) {
-            return res.status(404).json({ message: 'Dịch vụ không tồn tại sau khi cập nhật serviceId.' });
-        }
-
-        if (currentService.category === 1) { 
-            if (doctorId !== undefined) { 
-                if (doctorId && doctorId !== 'null') {
-                    const doctor = await Doctor.findById(doctorId);
-                    if (!doctor) {
-                        return res.status(404).json({ message: 'Bác sĩ không tồn tại.' });
-                    }
-                    booking.doctorId = doctorId;
-                } else {
-                    booking.doctorId = null; 
-                }
-            }
-        } else {
-            // Nếu dịch vụ KHÔNG phải là Category 1, đảm bảo doctorId luôn là null
-            booking.doctorId = null;
-        }
-
-        if (currentService.category === 3) {
-            const newCheckIn = checkIn ? new Date(checkIn) : booking.checkIn;
-            const newCheckOut = checkOut ? new Date(checkOut) : booking.checkOut;
-
-            if (!newCheckIn || !newCheckOut || newCheckOut <= newCheckIn) {
-                return res.status(400).json({ message: 'Ngày check-in và check-out là bắt buộc và hợp lệ cho dịch vụ khách sạn.' });
-            }
-
-            const overlappingBookings = await Booking.find({
-                serviceId: currentService._id,
-                status: { $in: ['pending', 'active', 'completed'] },
-                _id: { $ne: booking._id },
-                $or: [
-                    { checkIn: { $lte: newCheckOut }, checkOut: { $gte: newCheckIn } },
-                ],
-            });
-
-            if (overlappingBookings.length >= currentService.totalRooms) {
-                return res.status(400).json({ message: 'Không còn phòng trống trong khoảng thời gian đã chọn.' });
-            }
-
-            booking.checkIn = newCheckIn;
-            booking.checkOut = newCheckOut;
-            if (bookingDate === undefined) {
-                booking.bookingDate = newCheckIn;
-            }
-            const finalSubServiceIds = subServiceIds !== undefined ? subServiceIds : booking.subServices;
-            const timeDiff = newCheckOut.getTime() - newCheckIn.getTime();
-            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            let newTotalAmount = currentService.price * (daysDiff > 0 ? daysDiff : 1);
-
-            if (finalSubServiceIds && finalSubServiceIds.length > 0) {
-                const SubService = mongoose.model('Service');
-                const subServices = await SubService.find({ _id: { $in: finalSubServiceIds }, category: 2 });
-                if (subServices.length !== finalSubServiceIds.length) {
-                    return res.status(400).json({ message: 'Một hoặc nhiều dịch vụ phụ (Category 2) không hợp lệ.' });
-                }
-                const subServiceTotal = subServices.reduce((sum, sub) => sum + sub.price, 0);
-                newTotalAmount += subServiceTotal;
-            }
-
-            booking.totalAmount = newTotalAmount;
-        } else {
-            booking.checkIn = undefined;
-            booking.checkOut = undefined;
-            // Backfill totalAmount if missing for non-hotel services
-            if (!booking.totalAmount || Number.isNaN(Number(booking.totalAmount))) {
-                booking.totalAmount = currentService.price;
-            }
-        }
-
-        await booking.save(); // Lưu thay đổi
-        // Tìm lại document và populate
+        await booking.save();
+        
         const updatedBooking = await Booking.findById(booking._id)
-            .populate('serviceId', 'name price category')
+            .populate('serviceId', 'name price category totalRooms') // Populate thêm totalRooms để debug
             .populate('petId', 'name type')
             .populate('customerId', 'name phone')
             .populate('doctorId', 'name image specialty');
 
         res.status(200).json(updatedBooking);
+
     } catch (error) {
-        console.error('Error in updateBooking:', error.message || error);
-        res.status(500).json({ message: 'Lỗi khi cập nhật booking.', error: error.message || error });
+        console.error('Lỗi update booking:', error);
+        res.status(500).json({ message: 'Lỗi server khi cập nhật đơn hàng', error: error.message });
     }
 };
 
@@ -445,16 +547,6 @@ exports.getAvailableTimes = async (req, res) => {
         const startOfDay = new Date(selectedDate.setHours(0, 0, 0, 0));
         const endOfDay = new Date(selectedDate.setHours(23, 59, 59, 999));
 
-        // const bookings = await Booking.find({
-        //     serviceId,
-        //     status: { $in: ['pending', 'active', 'completed'] },
-        //     bookingDate: {
-        //         $gte: startOfDay,
-        //         $lte: endOfDay
-        //     }
-        // });
-
-        // === XÂY DỰNG TRUY VẤN ĐỘNG (ĐÃ SỬA) ===
         const query = {
             serviceId,
             status: { $in: ['pending', 'active', 'completed'] },
@@ -465,39 +557,25 @@ exports.getAvailableTimes = async (req, res) => {
         };
 
         if (service.category === 1) { 
-            // Nếu là dịch vụ Y tế/Khám bệnh
             const requestedDoctorId = doctorId && doctorId.toLowerCase() !== 'null' ? doctorId : null;
-
             if (requestedDoctorId) {
-                // Trường hợp 1: Người dùng chọn Bác sĩ cụ thể => Lọc lịch của Bác sĩ đó.
                 const doctor = await Doctor.findById(requestedDoctorId);
                 if (!doctor) {
                     return res.status(404).json({ message: 'Không tìm thấy bác sĩ' });
                 }
                 query.doctorId = requestedDoctorId; 
             } else {
-                // Trường hợp 2: Người dùng KHÔNG chọn Bác sĩ (Khám chung/Hẹn giờ chung) => Lọc lịch chung.
-                // Điều kiện này cần khớp với logic khi tạo booking không có doctorId
                 query.doctorId = null; 
             }
         } else {
-            // Đối với các dịch vụ hẹn giờ khác (Category 2: Grooming, etc.), 
-            // có thể coi như lịch chung (không cần doctorId).
             query.doctorId = null;
         }
 
-        // === THỰC THI TRUY VẤN VỚI QUERY ĐÃ XÂY DỰNG ===
         const bookings = await Booking.find(query);
-
-        console.log('Bookings found for', selectedDate.toISOString(), ':', bookings);
-
         const bookedTimes = bookings.map(booking => getTimeString(booking.bookingDate));
-
         const availableTimes = availableTimeSlots.filter(
             time => !bookedTimes.includes(time)
         );
-
-        console.log('Available times:', availableTimes);
 
         res.json({ availableTimes });
     } catch (error) {
@@ -507,7 +585,6 @@ exports.getAvailableTimes = async (req, res) => {
 };
 
 // ==================== THÊM MỚI: TẠO BOOKING VẬN CHUYỂN ====================
-const { calculateDistance } = require('../services/mapService');
 exports.createShipmentBooking = async (req, res) => {
     const {
         serviceId,
@@ -552,7 +629,7 @@ exports.createShipmentBooking = async (req, res) => {
 
         // 4. Xác định loại vận chuyển: standard hay express
         const isExpress = service.name.toLowerCase().includes('express') || 
-                         service.name.toLowerCase().includes('nhanh');
+                          service.name.toLowerCase().includes('nhanh');
         const shipmentType = isExpress ? 'express' : 'standard';
 
         // 5. Tính tổng tiền (công thức bạn có thể điều chỉnh thoải mái)
@@ -571,7 +648,8 @@ exports.createShipmentBooking = async (req, res) => {
                 dropoffAddress: dropoffAddress.trim(),
                 distance: distanceKm,                            // km
                 duration: distanceData.durationText,             // "18 mins"
-                shipmentType
+                shipmentType,
+                price: totalAmount // Lưu giá vào đây để update sau này dùng
             },
             notes: notes.trim(),
             totalAmount,
@@ -636,6 +714,7 @@ module.exports = {
     checkAvailability: exports.checkAvailability,
     createBooking: exports.createBooking,
     createShipmentBooking: exports.createShipmentBooking,
+    createUnifiedBooking: exports.createUnifiedBooking,
     getAllBookings: exports.getAllBookings,
     updateBooking: exports.updateBooking,
     deleteBooking: exports.deleteBooking,

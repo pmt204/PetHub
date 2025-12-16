@@ -51,7 +51,7 @@ const bookingSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'active', 'completed', 'canceled'],
+    enum: ['pending', 'active', 'completed', 'canceled'],
     default: 'pending',
     index: true,
   },
@@ -111,8 +111,7 @@ bookingSchema.pre('save', async function (next) {
   if (this.isModified('status')) {
     const oldStatus = this._originalStatus || 'pending';
     const allowedTransitions = {
-      pending: ['confirmed', 'canceled'],
-      confirmed: ['active', 'canceled'],
+      pending: ['active', 'canceled'],
       active: ['completed'],
       completed: [],
       canceled: [],

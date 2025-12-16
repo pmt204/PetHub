@@ -1,5 +1,4 @@
-// src/components/map/GoongMap.jsx – FIX WARNING CSS + MARKER HIỆN RÕ NHƯ GOOGLE MAPS
-
+// src/components/map/GoongMap.jsx
 import React, { useEffect, useRef } from 'react';
 import goongjs from '@goongmaps/goong-js';
 
@@ -9,8 +8,8 @@ const GoongMap = ({ pickup, dropoff }) => {
   const pickupMarker = useRef(null);
   const dropoffMarker = useRef(null);
 
-  const MAP_KEY = 'null';
-  const API_KEY = 'null';
+  const MAP_KEY = '';
+  const API_KEY = '';
 
   // Helper: Tạo element từ HTML cho marker
   const createMarkerElement = (color, letter) => {

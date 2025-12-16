@@ -1,0 +1,324 @@
+/* Container chính */
+.history-container {
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #334155;
+}
+
+/* --- Header của section lịch sử --- */
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.history-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.history-count {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.history-count {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* --- MỚI: Thanh Lọc (Filter Bar) --- */
+.filter-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap; /* Cho phép xuống dòng trên mobile */
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #64748b;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.filter-btn:hover {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+.filter-btn.active {
+  background-color: #334155; /* Màu đậm chủ đạo */
+  color: #ffffff;
+  border-color: #334155;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Thông báo khi lọc không có kết quả */
+.empty-filter-message {
+  text-align: center;
+  padding: 40px;
+  color: #94a3b8;
+  font-style: italic;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px dashed #cbd5e1;
+}
+
+/* --- Card (Khung chứa từng đơn) --- */
+.history-card {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.history-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e1;
+}
+
+@media (min-width: 768px) {
+  .history-card {
+    flex-direction: row; /* Trên máy tính thì dàn ngang */
+  }
+}
+
+/* --- Cột Trái: Thông tin chính --- */
+.card-main-content {
+  flex: 1;
+  padding: 24px;
+}
+
+.card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.service-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: #334155;
+  margin: 0 0 4px 0;
+}
+
+.service-name.hotel { color: #ea580c; } /* Màu cam cho khách sạn */
+.service-name.medical { color: #0284c7; } /* Màu xanh cho y tế */
+
+.order-code {
+  font-size: 12px;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: #dcfce7;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* Grid hiển thị chi tiết (Thời gian, Bác sĩ...) */
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .details-grid {
+    grid-template-columns: 1fr 1fr; /* Chia 2 cột trên màn hình lớn hơn mobile */
+  }
+}
+
+.detail-item label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.detail-item p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+/* Phần Ghi chú */
+.detail-item.notes {
+  grid-column: 1 / -1; /* Chiếm hết chiều ngang */
+  background-color: #fffbeb;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #fef3c7;
+}
+
+.note-content {
+  font-style: italic;
+  color: #92400e;
+}
+
+/* --- Cột Phải: Hóa đơn --- */
+.card-bill-section {
+  width: 100%;
+  background-color: #f8fafc; /* Màu nền xám nhẹ tách biệt */
+  border-top: 1px solid #e2e8f0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .card-bill-section {
+    width: 280px; /* Cố định chiều rộng trên desktop */
+    border-top: none;
+    border-left: 1px solid #e2e8f0;
+  }
+}
+
+.bill-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+
+.bill-list {
+  flex-grow: 1;
+  margin-bottom: 16px;
+}
+
+.bill-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.bill-row.main-service {
+  font-weight: 600;
+  color: #334155;
+}
+
+.bill-row.sub-service {
+  color: #64748b;
+  padding-left: 10px;
+  font-size: 12px;
+  position: relative;
+}
+
+.bill-row.sub-service::before {
+  content: "+";
+  position: absolute;
+  left: 0;
+  color: #94a3b8;
+}
+
+.bill-divider {
+  border-top: 1px dashed #cbd5e1;
+  margin-bottom: 12px;
+}
+
+.bill-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.total-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.total-price {
+  font-size: 20px;
+  font-weight: 800;
+  color: #be123c; /* Màu đỏ nổi bật */
+  line-height: 1;
+}
+
+/* Trạng thái Loading / Empty */
+.status-message {
+  text-align: center;
+  padding: 60px 20px;
+  color: #64748b;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+}
+
+.service-name.transport { color: #7c3aed; } /* Màu tím cho vận chuyển */
+
+/* Style riêng cho phần hiển thị Lộ trình vận chuyển */
+.transport-route {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-left: 2px solid #ddd6fe; /* Viền tím nhạt */
+  padding-left: 12px;
+}
+
+.route-point {
+  display: flex;
+  flex-direction: column;
+}
+
+.route-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.route-address {
+  font-size: 13px;
+  color: #334155;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.transport-info {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 4px;
+  font-style: italic;
+}

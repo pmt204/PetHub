@@ -18,6 +18,7 @@ const path = require('path');
 const doctorUserRoutes = require('./routes/doctorUserRoutes');
 const doctorAdminRoutes = require('./routes/doctorAdminRoutes');
 const mapRoutes = require('./routes/mapRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
 // Import các model cần thiết
 const Service = require('./models/Service');
@@ -75,43 +76,54 @@ app.get('/api/images/:filename', (req, res) => {
 // Endpoint lấy số liệu tổng quan cho dashboard
 app.get('/api/dashboard-stats', authMiddleware, async (req, res) => {
   try {
+    // 1. Check quyền Admin
     if (!req.user || req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Chỉ admin được phép truy cập.' });
     }
 
     const { startDate, endDate } = req.query;
 
-    const [totalServices, totalNews, totalBookings, totalCustomers, totalRevenueResult] = await Promise.all([
+    // 2. Tạo bộ lọc ngày tháng (chỉ lấy đơn đã hoàn thành)
+    const filter = { status: 'completed' };
+    if (startDate && endDate) {
+      // Xử lý endDate để lấy hết ngày cuối cùng (23:59:59)
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      
+      filter.bookingDate = { 
+        $gte: new Date(startDate), 
+        $lte: end 
+      };
+    }
+
+    // 3. Thực hiện truy vấn song song
+    // Thay vì Aggregate, ta dùng Find để lấy chi tiết từng đơn hàng
+    const [totalServices, totalNews, totalBookings, totalCustomers, completedBookings] = await Promise.all([
       Service.countDocuments(),
       News.countDocuments(),
-      Booking.countDocuments(),
+      Booking.countDocuments(), // Tổng số đơn (tất cả trạng thái)
       Customer.countDocuments(),
-      Booking.aggregate([
-        { $match: { status: 'completed', ...(startDate && endDate ? { bookingDate: { $gte: new Date(startDate), $lte: new Date(endDate) } } : {}) } },
-        {
-          $lookup: {
-            from: 'services',
-            localField: 'serviceId',
-            foreignField: '_id',
-            as: 'service'
-          }
-        },
-        { $unwind: '$service' },
-        { $group: { _id: null, total: { $sum: '$service.price' }, services: { $push: { name: '$service.name', price: '$service.price' } } } }
-      ])
+      Booking.find(filter)
+        .populate('serviceId', 'name price category') // Lấy tên, giá, loại dịch vụ chính
+        .populate('subServices', 'name price')        // Lấy tên, giá dịch vụ phụ (QUAN TRỌNG CHO ĐƠN GỘP)
+        .populate('customerId', 'name phone')         // Lấy thông tin khách
+        .sort({ bookingDate: -1 })                    // Sắp xếp mới nhất lên đầu
     ]);
 
-    const { total = 0, services = [] } = totalRevenueResult[0] || {};
-    const totalRevenue = total;
+    // 4. Tính tổng doanh thu từ danh sách đơn hàng đã lấy
+    // Sử dụng trường 'totalAmount' của Booking vì nó đã bao gồm (Giá DV + Phụ phí + Vận chuyển) * Số lượng/Ngày
+    const totalRevenue = completedBookings.reduce((sum, booking) => sum + (booking.totalAmount || 0), 0);
 
+    // 5. Trả về kết quả
     res.json({
       totalServices,
       totalNews,
       totalBookings,
       totalCustomers,
-      totalRevenue,
-      revenueDetails: services
+      totalRevenue, 
+      revenueDetails: completedBookings // Trả về mảng chi tiết để Frontend vẽ bảng và xuất Excel
     });
+
   } catch (error) {
     console.error('Lỗi khi lấy dữ liệu dashboard:', error);
     res.status(500).json({ message: 'Lỗi khi lấy dữ liệu dashboard' });
@@ -138,6 +150,7 @@ app.use('/api/payment/momo', paymentMoMoRoutes);
 app.use('/api/payment/paypal', paymentPayPalRoutes);
 app.use('/api/doctors', doctorUserRoutes);
 app.use('/api/maps', mapRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Tạo router riêng cho admin
 const adminRouter = express.Router();

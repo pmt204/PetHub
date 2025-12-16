@@ -1,0 +1,66 @@
+/* About */
+
+/* Tiêu đề chính */
+.about-title {
+    font-family: 'Quicksand', sans-serif;
+    color: #0d2554;
+    font-size: 2.5rem;
+}
+
+/* Đoạn văn mô tả */
+.about-description {
+    line-height: 1.9;
+    font-size: 1.2rem;
+}
+
+/* Hình ảnh giới thiệu */
+.about-image {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+/* Tiêu đề sứ mệnh */
+.about-mission-title {
+    font-family: 'Quicksand', sans-serif;
+    color: #0d2554;
+}
+
+/* Danh sách sứ mệnh */
+.about-mission-list {
+    line-height: 1.9;
+    font-size: 1.5rem;
+}
+
+/* Tiêu đề chăm sóc sức khỏe */
+.health-care-title {
+    font-family: 'Quicksand', sans-serif;
+    color: #0d2554;
+    font-size: 2.75rem;
+}
+
+/* Danh mục chủ đề chăm sóc */
+.health-topic {
+    cursor: pointer;
+    text-align: left;
+    font-size: 1.8rem;
+    padding-left: 12px;
+    border-left: 4px solid transparent;
+}
+
+.health-topic.selected {
+    font-weight: bold;
+    color: #8B0000;
+    border-left: 4px solid #8B0000;
+}
+
+/* Nội dung chủ đề */
+.health-content {
+    line-height: 1.8;
+    font-size: 1.25rem;
+}
+
+/* Nút quay lại */
+.back-home-btn {
+    background-color: #8B0000;
+    color: white;
+}

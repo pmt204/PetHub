@@ -1,0 +1,216 @@
+/* Container chính của khung chat */
+.ai-chat-window {
+    position: fixed;
+    bottom: 100px; /* Nằm trên nút liên hệ */
+    right: 30px;
+    width: 350px;
+    height: 450px;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 10000;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    font-family: 'Quicksand', sans-serif;
+    animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- HEADER --- */
+.ai-chat-header {
+    background: linear-gradient(135deg, #8B0000, #a00000);
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.ai-header-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ai-avatar-circle {
+    width: 36px;
+    height: 36px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-title {
+    font-weight: 700;
+    font-size: 15px;
+    display: block;
+}
+
+.ai-status {
+    font-size: 11px;
+    color: #ffd700; /* Vàng */
+}
+
+.ai-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    opacity: 0.8;
+    padding: 4px;
+}
+
+.ai-close-btn:hover {
+    opacity: 1;
+}
+
+/* --- BODY --- */
+.ai-chat-body {
+    flex: 1;
+    background-color: #f5f7fb;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ai-chat-date {
+    text-align: center;
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 10px;
+}
+
+.message-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.user-row {
+    justify-content: flex-end;
+}
+
+.ai-row {
+    justify-content: flex-start;
+}
+
+.msg-avatar img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    background-color: #fff;
+}
+
+.message-bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.ai-bubble {
+    background-color: white;
+    color: #333;
+    border-radius: 12px 12px 12px 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.user-bubble {
+    background-color: #8B0000;
+    color: white;
+    border-radius: 12px 12px 0 12px;
+    box-shadow: 0 2px 4px rgba(139, 0, 0, 0.2);
+}
+
+/* --- FOOTER --- */
+.ai-chat-footer {
+    padding: 10px;
+    background-color: white;
+    border-top: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ai-chat-footer input {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 10px 15px;
+    outline: none;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.ai-chat-footer input:focus {
+    border-color: #8B0000;
+}
+
+.ai-send-btn {
+    background-color: #8B0000;
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.ai-send-btn:hover {
+    transform: scale(1.1);
+    background-color: #a00000;
+}
+
+/* ... Code cũ giữ nguyên ... */
+
+/* --- HIỆU ỨNG TYPING INDICATOR --- */
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 12px 16px !important;
+    align-items: center;
+    min-width: 50px;
+}
+
+.typing-indicator span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: #aaa;
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out both;
+}
+
+.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0s; }
+
+@keyframes typing {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+
+/* Disabled state cho nút gửi khi đang load */
+.ai-send-btn:disabled, 
+.ai-chat-footer input:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}

@@ -30,7 +30,7 @@ const HeroAbout = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1 }}
                 >
-                    Giới thiệu về NekoKin
+                    Giới thiệu về PetHub
                 </motion.h1>
                 <motion.p
                     className="fs-4"

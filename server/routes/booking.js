@@ -10,5 +10,6 @@ router.put('/:id', auth, bookingController.updateBooking);
 router.delete('/:id', auth, bookingController.deleteBooking);
 router.get('/available-times/:serviceId', auth, bookingController.getAvailableTimes);
 router.post('/shipment', auth, bookingController.createShipmentBooking);
+router.post('/unified', auth, bookingController.createUnifiedBooking);
 
 module.exports = router;
