@@ -1,5 +1,3 @@
-// src/components/BookingModal.jsx – PHIÊN BẢN HOÀN CHỈNH NHẤT 2025 (KHÔNG LƯỢC BỎ GÌ HẾT!)
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
@@ -271,13 +269,29 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
+            // --- BƯỚC 1: XỬ LÝ GỘP NGÀY + GIỜ (FIX LỖI 00:00) ---
+            let finalBookingDate = formData.bookingDate;
+
+            // Nếu không phải khách sạn (Spa/Vet) và ĐÃ chọn giờ
+            if (selectedServiceDetails?.category !== 3 && formData.bookingDate && formData.bookingTime) {
+                // Tách giờ và phút từ chuỗi "09:30"
+                const [hours, minutes] = formData.bookingTime.split(':');
+                
+                // Dùng moment để set giờ vào ngày đã chọn
+                finalBookingDate = moment(formData.bookingDate)
+                    .set({ hour: parseInt(hours), minute: parseInt(minutes), second: 0 })
+                    .toDate(); // Chuyển về đối tượng Date
+            } else if (selectedServiceDetails?.category === 3) {
+                // Nếu là khách sạn, lấy ngày Check-in
+                finalBookingDate = formData.checkIn;
+            }
             const payload = {
                 serviceId: formData.serviceId,
                 petId: formData.petId,
                 doctorId: formData.doctorId || undefined,
                 notes: formData.notes,
                 subServiceIds: formData.subServiceIds,
-                bookingDate: formData.bookingDate || formData.checkIn,
+                bookingDate: finalBookingDate,
                 checkIn: formData.checkIn || undefined,
                 checkOut: formData.checkOut || undefined,
 
@@ -338,6 +352,15 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
 
         return Math.round(total);
     };
+
+    const filteredDoctors = doctors.filter(doctor => {
+    // 1. Nếu chưa chọn dịch vụ -> Hiển thị tất cả (hoặc ẩn tùy bạn, ở đây tôi để hiển thị hết)
+    if (!formData.serviceId) return true;
+
+    // 2. Nếu bác sĩ có danh sách services chứa ID dịch vụ đang chọn -> Hiển thị
+    // Lưu ý: doctor.services bây giờ là mảng ID string hoặc objectID
+    return doctor.services && doctor.services.includes(formData.serviceId);
+    });
 
     if (!isOpen) return null;
 
@@ -403,41 +426,83 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                         {currentCategoryId === '1' && (
                             <div className="mb-5">
                                 <h5 className="text-danger fw-bold mb-3">Chọn bác sĩ</h5>
+                                
+                                {/* Nếu đã chọn dịch vụ mà không có bác sĩ nào phù hợp */}
+                                {formData.serviceId && filteredDoctors.length === 0 && (
+                                    <div className="alert alert-warning">Chưa có bác sĩ nào đảm nhận dịch vụ này.</div>
+                                )}
+
                                 <div className="doctor-scroll-container" ref={doctorScrollRef}>
                                     <div className="d-flex gap-3 pb-3">
-                                        {doctors.length > 0 ? (
-                                            doctors.map(doctor => (
-                                                <div
-                                                    key={doctor._id}
-                                                    className={`doctor-card text-center flex-shrink-0 ${formData.doctorId === doctor._id ? 'selected' : ''}`}
-                                                    onClick={() => {
-                                                        setFormData(prev => ({ ...prev, doctorId: doctor._id }));
-                                                        setError('');
-                                                    }}
-                                                    style={{ width: '160px', cursor: 'pointer' }}
-                                                >
-                                                    <div className="position-relative">
-                                                        <img
-                                                            src={`http://localhost:5000/api/images/${doctor.image || 'default-doctor.jpg'}`}
-                                                            alt={doctor.name}
-                                                            className="rounded-circle mx-auto d-block mb-2"
-                                                            style={{ width: '90px', height: '90px', objectFit: 'cover', border: '4px solid #fff', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}
-                                                            onError={(e) => { e.target.src = 'http://localhost:5000/api/images/default-doctor.jpg'; }}
-                                                        />
-                                                        {formData.doctorId === doctor._id && (
-                                                            <div className="selected-check-doctor">✓</div>
+                                        {filteredDoctors.length > 0 ? (
+                                            filteredDoctors.map(doctor => {
+                                                // Kiểm tra trạng thái bận
+                                                const isBusy = doctor.status === 'busy';
+                                                // Kiểm tra đang chọn
+                                                const isSelected = formData.doctorId === doctor._id;
+
+                                                return (
+                                                    <div
+                                                        key={doctor._id}
+                                                        // Thêm class 'disabled' nếu bận
+                                                        className={`doctor-card text-center flex-shrink-0 ${isSelected ? 'selected' : ''} ${isBusy ? 'doctor-busy' : ''}`}
+                                                        onClick={() => {
+                                                            // Nếu bận thì không cho click
+                                                            if (!isBusy) {
+                                                                setFormData(prev => ({ ...prev, doctorId: doctor._id }));
+                                                                setError('');
+                                                            }
+                                                        }}
+                                                        style={{ width: '160px', cursor: isBusy ? 'not-allowed' : 'pointer' }}
+                                                    >
+                                                        <div className="position-relative">
+                                                            <img
+                                                                src={`http://localhost:5000/api/images/${doctor.image || 'default-doctor.jpg'}`}
+                                                                alt={doctor.name}
+                                                                className="rounded-circle mx-auto d-block mb-2"
+                                                                style={{ 
+                                                                    width: '90px', 
+                                                                    height: '90px', 
+                                                                    objectFit: 'cover', 
+                                                                    border: '4px solid #fff', 
+                                                                    boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                                                                    // Nếu bận thì làm ảnh xám đi
+                                                                    filter: isBusy ? 'grayscale(100%)' : 'none'
+                                                                }}
+                                                                onError={(e) => { e.target.src = 'http://localhost:5000/api/images/default-doctor.jpg'; }}
+                                                            />
+                                                            
+                                                            {/* Dấu tích xanh khi chọn */}
+                                                            {isSelected && <div className="selected-check-doctor">✓</div>}
+
+                                                            {/* DẤU CHẤM THAN KHI BẬN (Yêu cầu 1) */}
+                                                            {isBusy && (
+                                                                <div className="busy-badge" title="Bác sĩ đang bận">
+                                                                    !
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        
+                                                        <h6 className="mb-0 fw-bold">{doctor.name}</h6>
+                                                        
+                                                        {/* Hiển thị text trạng thái */}
+                                                        {isBusy ? (
+                                                            <p className="text-danger small mb-1 fw-bold">Đang bận</p>
+                                                        ) : (
+                                                            <p className="text-muted small mb-1">{doctor.specialty}</p>
                                                         )}
                                                     </div>
-                                                    <h6 className="mb-0 fw-bold">{doctor.name}</h6>
-                                                    <p className="text-muted small mb-1">{doctor.specialty}</p>
-                                                </div>
-                                            ))
+                                                );
+                                            })
                                         ) : (
-                                            <p className="text-muted">Đang tải bác sĩ...</p>
+                                            // Nếu chưa chọn dịch vụ thì nhắc chọn, hoặc báo đang tải
+                                            <p className="text-muted">
+                                                {!formData.serviceId ? 'Vui lòng chọn dịch vụ trước để xem bác sĩ phù hợp.' : 'Đang tải bác sĩ...'}
+                                            </p>
                                         )}
                                     </div>
                                 </div>
-                                {!formData.doctorId && <small className="text-danger d-block">Vui lòng chọn bác sĩ</small>}
+                                {!formData.doctorId && filteredDoctors.length > 0 && <small className="text-danger d-block">Vui lòng chọn bác sĩ</small>}
                             </div>
                         )}
 
@@ -553,6 +618,7 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                                                 selectedTime={formData.bookingTime}
                                                 onSelectTime={handleTimeSelect}
                                                 serviceId={formData.serviceId}
+                                                doctorId={formData.doctorId}
                                             />
                                         ) : (
                                             <div className="alert alert-info text-center py-4">Vui lòng chọn ngày để xem giờ khả dụng.</div>
@@ -648,7 +714,7 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                                     <option value="no">Không cần, tôi tự mang bé đến</option>
                                     <option value="pickup">Chỉ ĐÓN bé tại nhà</option>
                                     <option value="return">Chỉ TRẢ bé về nhà</option>
-                                    <option value="both">CẢ 2 CHIỀU (ĐÓN + TRẢ) – Tiết kiệm nhất!</option>
+                                    {/* <option value="both">CẢ 2 CHIỀU (ĐÓN + TRẢ) – Tiết kiệm nhất!</option> */}
                                 </select>
 
                                 {/* HIỂN THỊ ICON ĐẸP KHI CHỌN CÓ VẬN CHUYỂN */}

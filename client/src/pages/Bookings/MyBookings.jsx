@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import moment from 'moment';
 import { PayPalButtons } from "@paypal/react-paypal-js";
@@ -14,6 +14,7 @@ const MyBookings = () => {
     const [cancelLoading, setCancelLoading] = useState(false);
     const [payingBooking, setPayingBooking] = useState(null);
     const [payLoading, setPayLoading] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUserAndBookings = async () => {
@@ -179,7 +180,7 @@ const MyBookings = () => {
         setPayLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.put(
+            await axios.put(
                 `http://localhost:5000/api/bookings/${bookingId}`,
                 {
                     paymentStatus: 'success',
@@ -188,9 +189,9 @@ const MyBookings = () => {
                 },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            alert('Thanh toán thành công!');
-            setBookings((prev) => prev.map((b) => b._id === bookingId ? response.data : b));
+            
             handleClosePayModal();
+            navigate(`/payment-result?success=true&orderId=${bookingId}`);
         } catch (error) {
             console.error("PayPal Error:", error);
             alert('Lỗi cập nhật đơn hàng.');

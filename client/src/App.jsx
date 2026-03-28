@@ -76,6 +76,7 @@ function App() {
       <Routes>
         {/* Routes sử dụng Layout (cho người dùng thông thường) */}
         <Route path="booking-result" element={<BookingResult />} />
+        <Route path="payment-result" element={<PaymentResult />} />
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="home" element={<Home />} />
@@ -87,7 +88,6 @@ function App() {
           <Route path="account" element={<Account />} />
           <Route path="mypets" element={<MyPets />} />
           <Route path="/pet-profile/:petId" element={<PetProfile />} />
-          <Route path="payment-result" element={<PaymentResult />} />
           <Route path="doctors" element={<Doctor />} />
           <Route path="doctors/:id" element={<DoctorDetail />} />
           <Route path="shipment" element={<BookingShipment />} />
@@ -127,7 +127,7 @@ function App() {
           <Route path="customers" element={<CustomerManagement />} />
           <Route path="customers/:id" element={<CustomerDetail />} />
           <Route path="bookings" element={<BookingManagement />} />
-          <Route path="doctor" element={<DoctorManagement />} />
+          <Route path="doctors" element={<DoctorManagement />} />
         </Route>
 
         {/* Routes cho đăng nhập và đăng ký */}

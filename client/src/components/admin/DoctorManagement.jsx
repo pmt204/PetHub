@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./DoctorManagement.css"; // <-- 1. Đã thêm import CSS
+import "./DoctorManagement.css";
 
 const DoctorManagement = () => {
   const [doctors, setDoctors] = useState([]);
+  const [servicesList, setServicesList] = useState([]); // [MỚI] Danh sách tất cả dịch vụ để chọn
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // State cho Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [currentDoctor, setCurrentDoctor] = useState(null); // Bác sĩ đang chỉnh sửa
+  const [currentDoctor, setCurrentDoctor] = useState(null); 
+  
   const [formData, setFormData] = useState({
     name: "",
     specialty: "",
@@ -18,42 +20,60 @@ const DoctorManagement = () => {
     image: "",
     description: "",
     fullDescription: "",
-    services: "", // Dùng chuỗi, sau đó split
+    status: "active", // [MỚI] Mặc định là active
+    services: [],     // [MỚI] Mảng chứa ID các dịch vụ được chọn
   });
 
-  // Lấy token từ localStorage (Dựa trên logic của bạn)
   const getToken = () => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
-    // Giả định admin role được lưu trong 'user' object
-    if (userInfo && userInfo.role === 'admin' && token) {
-      return token;
-    }
+    if (userInfo && userInfo.role === 'admin' && token) return token;
     return null;
   };
   
-  // Fetch tất cả bác sĩ (API public)
-  const fetchDoctors = async () => {
+  // 1. Fetch Bác sĩ & Dịch vụ
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get("http://localhost:5000/api/doctors"); // Dùng API public để fetch list
-      setDoctors(data);
+      // Gọi song song 2 API để lấy data
+      const [doctorsRes, servicesRes] = await Promise.all([
+        axios.get("http://localhost:5000/api/doctors"),
+        axios.get("http://localhost:5000/api/services") // Giả định bạn có API này lấy all services
+      ]);
+
+      setDoctors(doctorsRes.data);
+      setServicesList(servicesRes.data);
       setError(null);
     } catch (err) {
-      setError("Lỗi khi tải danh sách bác sĩ");
+      setError("Lỗi khi tải dữ liệu.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDoctors();
+    fetchData();
   }, []);
 
-  // Xử lý thay đổi form
+  // Xử lý thay đổi Input thường
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // [MỚI] Xử lý chọn Dịch vụ (Checkbox)
+  const handleServiceChange = (serviceId) => {
+    setFormData((prev) => {
+      const isSelected = prev.services.includes(serviceId);
+      if (isSelected) {
+        // Nếu đã chọn -> Bỏ chọn
+        return { ...prev, services: prev.services.filter(id => id !== serviceId) };
+      } else {
+        // Nếu chưa chọn -> Thêm vào
+        return { ...prev, services: [...prev.services, serviceId] };
+      }
+    });
   };
 
   // Mở modal (Thêm mới)
@@ -66,7 +86,8 @@ const DoctorManagement = () => {
       image: "",
       description: "",
       fullDescription: "",
-      services: "",
+      status: "active",
+      services: [],
     });
     setIsModalOpen(true);
   };
@@ -76,20 +97,18 @@ const DoctorManagement = () => {
     setCurrentDoctor(doctor);
     setFormData({
       ...doctor,
-      services: doctor.services.join(", "), // Join mảng thành chuỗi
+      // services trong doctor là mảng ID (do backend trả về), giữ nguyên để map vào checkbox
+      services: doctor.services || [], 
+      status: doctor.status || "active"
     });
     setIsModalOpen(true);
   };
 
-  // Xử lý lưu (Thêm mới hoặc Cập nhật)
+  // Xử lý lưu
   const handleSave = async (e) => {
     e.preventDefault();
-    
     const token = getToken();
-    if (!token) {
-        alert("Không có quyền Admin hoặc token không hợp lệ!");
-        return;
-    }
+    if (!token) return alert("Không có quyền Admin!");
     
     const config = {
       headers: {
@@ -98,73 +117,57 @@ const DoctorManagement = () => {
       },
     };
 
+    // Chuẩn hóa dữ liệu trước khi gửi
     const dataToSave = {
       ...formData,
-      services: formData.services.split(",").map((s) => s.trim()).filter(s => s), // Tách chuỗi thành mảng (loại bỏ chuỗi rỗng)
-      experienceYears: Number(formData.experienceYears)
+      experienceYears: Number(formData.experienceYears),
+      // services đã là mảng ID, không cần split nữa
     };
 
     try {
       if (currentDoctor) {
-        // Cập nhật (PUT)
-        await axios.put(
-          `/admin/doctors/${currentDoctor._id}`,
-          dataToSave,
-          config
-        );
+        await axios.put(`http://localhost:5000/api/admin/doctors/${currentDoctor._id}`, dataToSave, config);
       } else {
-        // Thêm mới (POST)
-        await axios.post("/admin/doctors", dataToSave, config);
+        await axios.post("http://localhost:5000/api/admin/doctors", dataToSave, config);
       }
-      fetchDoctors(); // Tải lại danh sách
-      setIsModalOpen(false); // Đóng modal
+      fetchData(); // Tải lại danh sách
+      setIsModalOpen(false);
     } catch (err) {
-      alert("Lỗi khi lưu bác sĩ: " + (err.response?.data?.message || err.message));
+      alert("Lỗi khi lưu: " + (err.response?.data?.message || err.message));
     }
   };
 
-  // Mở modal (Xác nhận xóa)
+  // Xử lý xóa (Giữ nguyên)
   const handleDelete = (doctor) => {
     setCurrentDoctor(doctor);
     setIsDeleteModalOpen(true);
   };
 
-  // Xử lý xác nhận xóa
   const confirmDelete = async () => {
     const token = getToken();
-    if (!token) {
-        alert("Không có quyền Admin hoặc token không hợp lệ!");
-        return;
-    }
-     const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-
+    if (!token) return alert("Không có quyền Admin!");
     try {
-      await axios.delete(`/admin/doctors/${currentDoctor._id}`, config);
-      fetchDoctors(); // Tải lại danh sách
+      await axios.delete(`http://localhost:5000/api/admin/doctors/${currentDoctor._id}`, { headers: { Authorization: `Bearer ${token}` } });
+      fetchData();
       setIsDeleteModalOpen(false);
       setCurrentDoctor(null);
     } catch (err) {
-      alert("Lỗi khi xóa bác sĩ: " + (err.response?.data?.message || err.message));
+      alert("Lỗi xóa: " + err.message);
     }
   };
 
-  if (loading) return <p>Đang tải...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (loading) return <div className="dm-loading">Đang tải dữ liệu...</div>;
+  if (error) return <div className="dm-error">{error}</div>;
 
   return (
     <div className="doctor-management">
       <div className="dm-header">
         <h1>Quản lý Bác sĩ</h1>
         <button onClick={handleAdd} className="dm-btn-add">
-          Thêm Bác sĩ
+          + Thêm Bác sĩ
         </button>
       </div>
 
-      {/* Bảng danh sách bác sĩ */}
       <div className="dm-table-wrapper">
         <table className="dm-table">
           <thead>
@@ -172,8 +175,8 @@ const DoctorManagement = () => {
               <th>Ảnh</th>
               <th>Tên</th>
               <th>Chuyên khoa</th>
-              <th>Kinh nghiệm</th>
-              <th>Đánh giá</th>
+              <th>Trạng thái</th> {/* [MỚI] Cột trạng thái */}
+              <th>Dịch vụ</th>    {/* [MỚI] Cột dịch vụ */}
               <th>Hành động</th>
             </tr>
           </thead>
@@ -185,22 +188,32 @@ const DoctorManagement = () => {
                     src={`http://localhost:5000/api/images/${doc.image}`}
                     alt={doc.name}
                     className="doctor-image"
-                    onError={(e) => { e.target.src = 'https://placehold.co/40x40/cccccc/ffffff?text=Img'; }} // Ảnh dự phòng
+                    onError={(e) => { e.target.src = 'https://placehold.co/40x40?text=Img'; }}
                   />
                 </td>
-                <td>{doc.name}</td>
-                <td>{doc.specialty}</td>
-                <td>{doc.experienceYears} năm</td>
                 <td>
-                  {doc.rating.toFixed(1)} ⭐ ({doc.numReviews})
+                    <div className="fw-bold">{doc.name}</div>
+                    <small className="text-muted">{doc.experienceYears} năm KN</small>
                 </td>
+                <td>{doc.specialty}</td>
+                
+                {/* [MỚI] Hiển thị Status */}
+                <td>
+                    <span className={`status-badge ${doc.status === 'busy' ? 'status-busy' : 'status-active'}`}>
+                        {doc.status === 'busy' ? 'Bận' : 'Hoạt động'}
+                    </span>
+                </td>
+
+                {/* [MỚI] Hiển thị số lượng dịch vụ */}
+                <td>
+                    <span className="service-count badge bg-info">
+                        {doc.services?.length || 0} dịch vụ
+                    </span>
+                </td>
+
                 <td className="dm-actions">
-                  <button onClick={() => handleEdit(doc)} className="dm-btn-edit">
-                    Sửa
-                  </button>
-                  <button onClick={() => handleDelete(doc)} className="dm-btn-delete">
-                    Xóa
-                  </button>
+                  <button onClick={() => handleEdit(doc)} className="dm-btn-edit">Sửa</button>
+                  <button onClick={() => handleDelete(doc)} className="dm-btn-delete">Xóa</button>
                 </td>
               </tr>
             ))}
@@ -211,128 +224,95 @@ const DoctorManagement = () => {
       {/* Modal Thêm/Sửa */}
       {isModalOpen && (
         <div className="dm-modal-overlay">
-          <div className="dm-modal-content">
+          <div className="dm-modal-content" style={{maxWidth: '800px'}}>
             <div className="dm-modal-header">
-              <h2>{currentDoctor ? "Chỉnh sửa Bác sĩ" : "Thêm Bác sĩ mới"}</h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="dm-modal-close"
-              >
-                &times;
-              </button>
+              <h2>{currentDoctor ? "Chỉnh sửa Hồ sơ" : "Thêm Bác sĩ mới"}</h2>
+              <button onClick={() => setIsModalOpen(false)} className="dm-modal-close">&times;</button>
             </div>
-            <form onSubmit={handleSave} className="dm-form">
-              <div className="dm-form-group">
-                <label>Tên Bác sĩ</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                />
+            
+            <form onSubmit={handleSave} className="dm-form-grid">
+              {/* Cột Trái: Thông tin cơ bản */}
+              <div className="dm-col">
+                  <div className="dm-form-group">
+                    <label>Tên Bác sĩ</label>
+                    <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+                  </div>
+                  <div className="dm-form-group">
+                    <label>Chuyên khoa</label>
+                    <input type="text" name="specialty" value={formData.specialty} onChange={handleChange} required />
+                  </div>
+                  
+                  {/* [MỚI] Chọn Trạng thái */}
+                  <div className="dm-form-group">
+                    <label>Trạng thái làm việc</label>
+                    <select name="status" value={formData.status} onChange={handleChange} className="dm-select">
+                        <option value="active">🟢 Hoạt động (Active)</option>
+                        <option value="busy">🔴 Bận (Busy)</option>
+                    </select>
+                  </div>
+
+                  <div className="dm-form-group">
+                    <label>Kinh nghiệm (năm)</label>
+                    <input type="number" name="experienceYears" value={formData.experienceYears} onChange={handleChange} required min="0" />
+                  </div>
+                  <div className="dm-form-group">
+                    <label>Ảnh đại diện (URL)</label>
+                    <input type="text" name="image" value={formData.image} onChange={handleChange} placeholder="/images/..." required />
+                  </div>
               </div>
-              <div className="dm-form-group">
-                <label>Chuyên khoa</label>
-                <input
-                  type="text"
-                  name="specialty"
-                  value={formData.specialty}
-                  onChange={handleChange}
-                  required
-                />
+
+              {/* Cột Phải: Dịch vụ & Mô tả */}
+              <div className="dm-col">
+                  {/* [MỚI] Chọn Dịch vụ bằng Checkbox */}
+                  <div className="dm-form-group">
+                    <label>Dịch vụ đảm nhận</label>
+                    <div className="services-checkbox-list">
+                        {servicesList.length > 0 ? (
+                            servicesList.map(service => (
+                                <label key={service._id} className="service-item">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={formData.services.includes(service._id)}
+                                        onChange={() => handleServiceChange(service._id)}
+                                    />
+                                    <span className="service-name">{service.name}</span>
+                                </label>
+                            ))
+                        ) : (
+                            <p className="text-muted small">Không có dịch vụ nào.</p>
+                        )}
+                    </div>
+                    <small className="text-muted">Đã chọn: {formData.services.length}</small>
+                  </div>
+
+                  <div className="dm-form-group">
+                    <label>Mô tả ngắn</label>
+                    <textarea name="description" value={formData.description} onChange={handleChange} rows="2"></textarea>
+                  </div>
+                  <div className="dm-form-group">
+                    <label>Chi tiết</label>
+                    <textarea name="fullDescription" value={formData.fullDescription} onChange={handleChange} rows="3"></textarea>
+                  </div>
               </div>
-              <div className="dm-form-group">
-                <label>Số năm kinh nghiệm</label>
-                <input
-                  type="number"
-                  name="experienceYears"
-                  value={formData.experienceYears}
-                  onChange={handleChange}
-                  required
-                  min="0"
-                />
-              </div>
-              <div className="dm-form-group">
-                <label>Link Ảnh (URL)</label>
-                <input
-                  type="text"
-                  name="image"
-                  value={formData.image}
-                  onChange={handleChange}
-                  placeholder="/images/doctors/ten-anh.jpg"
-                  required
-                />
-              </div>
-              <div className="dm-form-group">
-                <label>Mô tả ngắn</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows="3"
-                ></textarea>
-              </div>
-              <div className="dm-form-group">
-                <label>Mô tả đầy đủ</label>
-                <textarea
-                  name="fullDescription"
-                  value={formData.fullDescription}
-                  onChange={handleChange}
-                  rows="5"
-                ></textarea>
-              </div>
-              <div className="dm-form-group">
-                <label>Dịch vụ (Ngăn cách bởi dấu phẩy)</label>
-                <input
-                  type="text"
-                  name="services"
-                  value={formData.services}
-                  onChange={handleChange}
-                  placeholder="Khám tổng quát, Chăm sóc da, ..."
-                />
-              </div>
-              <div className="dm-form-actions">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="dm-btn-cancel"
-                >
-                  Hủy
-                </button>
-                <button type="submit" className="dm-btn-save">
-                  Lưu lại
-                </button>
+
+              <div className="dm-form-actions full-width">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="dm-btn-cancel">Hủy</button>
+                <button type="submit" className="dm-btn-save">Lưu thông tin</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal Xác nhận Xóa */}
+      {/* Modal Xóa (Giữ nguyên) */}
       {isDeleteModalOpen && (
         <div className="dm-modal-overlay">
           <div className="dm-modal-content dm-delete-confirm">
             <h2>Xác nhận Xóa</h2>
-            <p>
-              Bạn có chắc chắn muốn xóa bác sĩ{" "}
-              <strong>{currentDoctor?.name}</strong>?
-            </p>
+            <p>Bạn có chắc muốn xóa bác sĩ <strong>{currentDoctor?.name}</strong>?</p>
             <div className="dm-form-actions">
-              <button
-                type="button"
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="dm-btn-cancel"
-              >
-                Hủy
-              </button>
-              <button
-                type="button"
-                onClick={confirmDelete}
-                className="dm-btn-delete"
-              >
-                Xác nhận Xóa
-              </button>
+              <button onClick={() => setIsDeleteModalOpen(false)} className="dm-btn-cancel">Hủy</button>
+              <button onClick={confirmDelete} className="dm-btn-delete">Xóa luôn</button>
             </div>
           </div>
         </div>

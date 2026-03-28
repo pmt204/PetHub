@@ -49,7 +49,7 @@ const AdminLayout = () => {
             </Link>
           </li>
           <li className="nav-item mb-2">
-            <Link to="/admin/doctor" className="nav-link text-white"> {/* Sửa 'nav-lin' */}
+            <Link to="/admin/doctors" className="nav-link text-white"> {/* Sửa 'nav-lin' */}
               <FaStethoscope className="me-2" /> Quản Lý Bác Sĩ {/* Thêm icon và text */}
             </Link>
           </li>

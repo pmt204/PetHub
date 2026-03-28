@@ -205,3 +205,34 @@ select,
     font-size: 18px;
     font-weight: bold;
 }
+/* Trạng thái Bận: Làm mờ toàn bộ card */
+.doctor-card.doctor-busy {
+    opacity: 0.6;
+    background-color: #f8f9fa; /* Màu nền xám nhẹ */
+}
+
+/* Dấu chấm than cảnh báo */
+.busy-badge {
+    position: absolute;
+    top: 0;
+    right: 25px; /* Căn chỉnh tùy theo avatar */
+    background-color: #dc3545; /* Màu đỏ */
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 10;
+    animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}

@@ -52,7 +52,7 @@ const FloatingContact = ({ isBookingModalOpen = false }) => {
           </div>
           
           {/* Các mục khác giữ nguyên */}
-          <a href="https://zalo.me/0923456897" target="_blank" rel="noreferrer" className="contact-item">
+          <a href="https://zalo.me/0363213230" target="_blank" rel="noreferrer" className="contact-item">
             <div className="icon-box bg-blue">
               <SiZalo size={20} />
             </div>

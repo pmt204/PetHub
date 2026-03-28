@@ -3,13 +3,12 @@ import axios from 'axios';
 import moment from 'moment';
 import './TimeSlotPicker.css';
 
-const TimeSlotPicker = ({ selectedDate, selectedTime, onSelectTime, serviceId }) => {
-    const [availableTimes, setAvailableTimes] = useState([]);
+const TimeSlotPicker = ({ selectedDate, selectedTime, onSelectTime, serviceId, doctorId }) => {
+    const [availableTimes, setAvailableTimes] = useState([]); // Chứa danh sách các giờ CÒN TRỐNG từ API
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-
-    // Danh sách khung giờ mặc định (8:00–15:00, cách 30 phút)
-    const defaultTimeSlots = [
+    
+    // Danh sách tất cả các khung giờ cố định của Shop để render ra màn hình
+    const allTimeSlots = [
         '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
         '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
         '14:00', '14:30', '15:00'
@@ -17,78 +16,68 @@ const TimeSlotPicker = ({ selectedDate, selectedTime, onSelectTime, serviceId })
 
     useEffect(() => {
         const fetchAvailableTimes = async () => {
-            if (!selectedDate || !serviceId) {
-                console.log('Missing selectedDate or serviceId:', { selectedDate, serviceId });
-                setError('Vui lòng chọn ngày và dịch vụ.');
-                setAvailableTimes(defaultTimeSlots); // Hiển thị tất cả khung giờ mặc định nếu thiếu dữ liệu
-                return;
-            }
-
-            if (isNaN(new Date(selectedDate)) || !moment(selectedDate).isValid()) {
-                console.log('Invalid selectedDate:', selectedDate);
-                setError('Ngày không hợp lệ.');
-                setAvailableTimes(defaultTimeSlots); // Hiển thị tất cả khung giờ mặc định nếu ngày không hợp lệ
-                return;
-            }
+            if (!selectedDate || !serviceId) return;
 
             setLoading(true);
-            setError('');
             try {
-                const formattedDate = moment(selectedDate).format('YYYY-MM-DD');
-                console.log('Fetching available times for date:', formattedDate, 'and serviceId:', serviceId);
                 const token = localStorage.getItem('token');
-                if (!token) {
-                    throw new Error('Token không tìm thấy. Vui lòng đăng nhập lại.');
-                }
+                const formattedDate = moment(selectedDate).format('YYYY-MM-DD');
+                
+                // Gọi API lấy giờ trống (có kèm doctorId nếu có)
                 const response = await axios.get(
-                    `http://localhost:5000/api/bookings/available-times/${serviceId}?date=${formattedDate}`,
+                    `http://localhost:5000/api/bookings/available-times/${serviceId}`,
                     {
+                        params: { 
+                            date: formattedDate,
+                            doctorId: doctorId // Quan trọng: Gửi doctorId để lọc trùng lịch bác sĩ
+                        },
                         headers: { Authorization: `Bearer ${token}` }
                     }
                 );
-                console.log('API response:', response.data);
-                setAvailableTimes(response.data.availableTimes || defaultTimeSlots); // Sử dụng availableTimes từ API, nếu rỗng thì dùng default
+
+                // API trả về mảng các giờ còn trống (ví dụ: ['08:00', '09:00'])
+                setAvailableTimes(response.data.availableTimes || []);
             } catch (err) {
                 console.error('Error fetching available times:', err);
-                setError(err.message || err.response?.data?.message || 'Không thể tải khung giờ trống.');
-                setAvailableTimes(defaultTimeSlots); // Hiển thị tất cả khung giờ mặc định nếu có lỗi
+                // Nếu lỗi thì coi như không có giờ nào trống để an toàn
+                setAvailableTimes([]); 
             } finally {
                 setLoading(false);
             }
         };
 
         fetchAvailableTimes();
-    }, [selectedDate, serviceId]);
+    }, [selectedDate, serviceId, doctorId]); // Chạy lại khi date, service hoặc doctor thay đổi
 
     const handleTimeSelect = (time) => {
-        console.log('Selected time:', time);
         onSelectTime(time);
     };
 
     const isTimeDisabled = (time) => {
         if (!selectedDate) return true;
+
+        // 1. Kiểm tra quá khứ
         const now = moment();
         const [hours, minutes] = time.split(':').map(Number);
-        const combinedDateTime = moment(selectedDate)
-            .hour(hours)
-            .minute(minutes);
-        const isPast = combinedDateTime.isBefore(now);
-        const isBooked = availableTimes && !availableTimes.includes(time);
-        console.log(`Checking if time ${time} is disabled: isPast=${isPast}, isBooked=${isBooked}`);
-        return isPast || isBooked; // Disable nếu giờ đã qua hoặc đã đặt
+        const slotDateTime = moment(selectedDate).hour(hours).minute(minutes);
+        
+        // Nếu ngày chọn là hôm nay và giờ slot nhỏ hơn giờ hiện tại -> Disable
+        if (moment(selectedDate).isSame(now, 'day') && slotDateTime.isBefore(now)) {
+            return true;
+        }
+
+        // 2. Kiểm tra trùng lịch (Dựa vào dữ liệu API trả về)
+        // Nếu giờ này KHÔNG nằm trong danh sách availableTimes -> Disable (đã bị đặt)
+        return !availableTimes.includes(time);
     };
 
     if (loading) {
-        return <div className="text-center text-muted py-4">Đang tải khung giờ...</div>;
-    }
-
-    if (error) {
-        return <div className="alert alert-danger text-center py-4">{error}</div>;
+        return <div className="text-center text-muted py-4">Đang kiểm tra lịch...</div>;
     }
 
     return (
         <div className="time-slot-picker-container">
-            {defaultTimeSlots.map((time, index) => {
+            {allTimeSlots.map((time, index) => {
                 const isSelected = selectedTime === time;
                 const isDisabled = isTimeDisabled(time);
 
@@ -99,11 +88,28 @@ const TimeSlotPicker = ({ selectedDate, selectedTime, onSelectTime, serviceId })
                         className={`time-slot-button ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
                         onClick={() => !isDisabled && handleTimeSelect(time)}
                         disabled={isDisabled}
+                        title={isDisabled ? "Giờ này đã qua hoặc đã có người đặt" : "Chọn giờ này"}
                     >
                         {time}
                     </button>
                 );
             })}
+            
+            {/* Chú thích trạng thái */}
+            <div className="d-flex justify-content-center gap-3 mt-3 small text-muted">
+                <div className="d-flex align-items-center">
+                    <span className="d-inline-block border border-secondary bg-white rounded me-1" style={{width: 12, height: 12}}></span>
+                    Trống
+                </div>
+                <div className="d-flex align-items-center">
+                    <span className="d-inline-block bg-secondary opacity-25 rounded me-1" style={{width: 12, height: 12}}></span>
+                    Đã đặt / Quá hạn
+                </div>
+                <div className="d-flex align-items-center">
+                    <span className="d-inline-block bg-danger rounded me-1" style={{width: 12, height: 12}}></span>
+                    Đang chọn
+                </div>
+            </div>
         </div>
     );
 };

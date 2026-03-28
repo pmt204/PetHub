@@ -182,7 +182,7 @@ const Layout = () => {
               </p>
               <div className="mt-3">
                 <p className="mb-0" style={{ fontFamily: 'Quicksand, sans-serif', fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)' }}>
-                  <strong style={{ color: 'white' }}>Hotline:</strong> 0923 456 897
+                  <strong style={{ color: 'white' }}>Hotline:</strong> 0363 213 230
                 </p>
                 <p className="mb-1" style={{ fontFamily: 'Quicksand, sans-serif', fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)' }}>
                   <strong style={{ color: 'white' }}>Địa chỉ:</strong> 57 Đường Số 31, Linh Đông, Thủ Đức, Thành phố Hồ Chí Minh

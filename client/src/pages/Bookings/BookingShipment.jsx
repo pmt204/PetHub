@@ -113,11 +113,17 @@ const BookingShipment = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/bookings/shipment', formData, {
+      const response = await axios.post('http://localhost:5000/api/bookings/shipment', formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Đặt vận chuyển thành công!');
-      setTimeout(() => navigate('/mybookings'), 2000);
+      navigate('/booking-result', {
+            state: {
+                success: true,
+                message: '',
+                bookingId: response.data.data._id 
+            }
+          });
     } catch (err) {
       toast.error(err.response?.data?.message || 'Đặt thất bại');
     } finally {

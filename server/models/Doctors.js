@@ -67,10 +67,16 @@ const doctorSchema = new mongoose.Schema(
       required: [true, 'Mô tả đầy đủ là bắt buộc'],
       trim: true,
     },
-    services: {
-      type: [String],
-      default: [],
+    status: {
+      type: String,
+      enum: ['active', 'busy'], 
+      default: 'active',
     },
+    services: [{
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'Service', 
+      default: []
+    }],
     reviews: [reviewSchema], 
   },
   {

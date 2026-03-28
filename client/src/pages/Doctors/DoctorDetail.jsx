@@ -74,15 +74,7 @@ const DoctorDetail = () => {
     }, [id, refetch]);
 
     const handleBooking = () => {
-        if (!doctor || !doctor.categoryServices || doctor.categoryServices.length === 0) {
-            alert("Bác sĩ này chưa được phân loại vào nhóm dịch vụ nào để đặt lịch.");
-            return;
-        }
-
-        const firstCategory = doctor.categoryServices[0];
-        const targetId = firstCategory._id || firstCategory;
-
-        navigate(`/categoryservices/${targetId}`);
+        navigate('/categoryservices/1');
     };
 
     if (loading) {
@@ -201,7 +193,7 @@ const DoctorDetail = () => {
                         <h2>Lĩnh vực chuyên sâu</h2>
                         <ul className="services-list">
                             {doctor.services.map((service, index) => (
-                                <li key={index}>{service}</li>
+                                <li key={index}>{service.name || service}</li>
                             ))}
                         </ul>
                     </div>

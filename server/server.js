@@ -158,7 +158,7 @@ adminRouter.get('/dashboard', authMiddleware, (req, res) => {
   res.json({ message: 'Truy cập thành công', user: req.user });
 });
 app.use('/admin', adminRouter);
-app.use('/admin/doctors', authMiddleware, doctorAdminRoutes);
+app.use('/api/admin/doctors', authMiddleware, doctorAdminRoutes);
 
 app.get('/', (req, res) => {
   res.send('NekoKin Backend API');

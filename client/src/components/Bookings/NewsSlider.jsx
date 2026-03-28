@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import '../../App.css';
 
-const NewsSlider = ({ featuredNews }) => {
+const NewsSlider = ({ featuredNews = [] }) => {
     const sliderRef = useRef(null);
 
     const scrollLeft = () => {
@@ -17,6 +17,13 @@ const NewsSlider = ({ featuredNews }) => {
         }
     };
 
+    // --- QUAN TRỌNG: LỌC DỮ LIỆU SẠCH ---
+    // 1. Chỉ lấy những tin tức có _id và title (loại bỏ tin rác/rỗng chỉ có ngày)
+    // 2. Đảm bảo biến là mảng trước khi filter
+    const validNews = Array.isArray(featuredNews) 
+        ? featuredNews.filter(item => item && item._id && item.title) 
+        : [];
+
     return (
         <section className="news-slider-section py-5" style={{ backgroundColor: '#FAF7F1' }}>
             <div className="container position-relative">
@@ -25,36 +32,56 @@ const NewsSlider = ({ featuredNews }) => {
                 </h2>
 
                 <div className="news-slider-container" ref={sliderRef}>
-                    {featuredNews.map((item) => (
-                        <div key={item._id} className="news-slider-card">
-                            <Link to={`/news/${item._id}`} className="text-decoration-none text-dark">
-                                <img
-                                    src={`http://localhost:5000/api/images/${item.image}`}
-                                    alt={item.title}
-                                    className="img-fluid rounded mb-3"
-                                    onError={(e) => (e.target.src = '/images/default_news.jpg')}
-                                />
-                                <h5 className="news-slider-title-text">
-                                    {item.title.length > 60 ? item.title.slice(0, 57) + '...' : item.title}
-                                </h5>
-                                <p className="news-slider-content">{item.content}</p>
-                                <p className="news-slider-date">
-                                    {new Date(item.date).toLocaleDateString()}
-                                </p>
-                            </Link>
+                    {validNews.length > 0 ? (
+                        validNews.map((item) => {
+                            // --- XỬ LÝ ẢNH TRƯỚC KHI RENDER ---
+                            // Nếu item.image null/undefined -> Dùng ảnh mặc định ngay lập tức
+                            // Tránh việc trình duyệt gọi ".../undefined" gây lỗi server
+                            const imageUrl = item.image 
+                                ? `http://localhost:5000/api/images/${item.image}` 
+                                : '/images/default_news.jpg';
+
+                            return (
+                                <div key={item._id} className="news-slider-card">
+                                    <Link to={`/news/${item._id}`} className="text-decoration-none text-dark">
+                                        <img
+                                            src={imageUrl}
+                                            alt={item.title}
+                                            className="img-fluid rounded mb-3"
+                                            onError={(e) => (e.target.src = '/images/default_news.jpg')}
+                                        />
+                                        <h5 className="news-slider-title-text">
+                                            {item.title.length > 60 ? item.title.slice(0, 57) + '...' : item.title}
+                                        </h5>
+                                        <p className="news-slider-content">
+                                            {item.content ? (item.content.length > 100 ? item.content.slice(0, 100) + '...' : item.content) : ''}
+                                        </p>
+                                        <p className="news-slider-date">
+                                            {item.date ? new Date(item.date).toLocaleDateString('vi-VN') : ''}
+                                        </p>
+                                    </Link>
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <div className="text-center w-100 py-4">
+                            <p className="text-muted">Chưa có tin tức nào nổi bật.</p>
                         </div>
-                    ))}
+                    )}
                 </div>
 
-                {/* Nút điều hướng */}
-                <button onClick={scrollLeft} className="news-slider-nav-btn news-slider-btn-left">
-                    &#8249;
-                </button>
-                <button onClick={scrollRight} className="news-slider-nav-btn news-slider-btn-right">
-                    &#8250;
-                </button>
+                {/* Chỉ hiển thị nút điều hướng khi có đủ bài để trượt (ví dụ > 3 bài) hoặc đơn giản là có bài */}
+                {validNews.length > 0 && (
+                    <>
+                        <button onClick={scrollLeft} className="news-slider-nav-btn news-slider-btn-left">
+                            &#8249;
+                        </button>
+                        <button onClick={scrollRight} className="news-slider-nav-btn news-slider-btn-right">
+                            &#8250;
+                        </button>
+                    </>
+                )}
 
-                {/* Nút xem thêm */}
                 <div className="text-center mt-4">
                     <Link to="/news" className="btn px-4 py-2 news-slider-more-btn">
                         Tìm hiểu thêm

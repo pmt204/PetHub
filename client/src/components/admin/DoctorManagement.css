@@ -277,3 +277,71 @@
 .dm-delete-confirm .dm-btn-delete:hover {
   background-color: #b91c1c;
 }
+/* --- CSS MỚI THÊM VÀO --- */
+
+/* Badge trạng thái */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.status-active {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+.status-busy {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Layout Form Grid (Chia 2 cột) */
+.dm-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.dm-col {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.full-width {
+    grid-column: span 2;
+    margin-top: 20px;
+}
+
+/* Checkbox List Dịch vụ */
+.services-checkbox-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 6px;
+    background: #f9fafb;
+}
+.service-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+}
+.service-item:hover {
+    background-color: #e5e7eb;
+}
+.service-name {
+    font-size: 0.9rem;
+}
+
+/* Responsive cho mobile thì về 1 cột */
+@media (max-width: 768px) {
+    .dm-form-grid {
+        grid-template-columns: 1fr;
+    }
+    .full-width {
+        grid-column: span 1;
+    }
+}

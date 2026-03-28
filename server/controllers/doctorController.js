@@ -1,4 +1,4 @@
-const Doctor = require('../models/Doctors'); // Đảm bảo tên file đúng với thực tế
+const Doctor = require('../models/Doctors'); 
 const Customer = require('../models/Customer');
 
 // 1. CREATE DOCTOR
@@ -6,12 +6,15 @@ exports.createDoctor = async (req, res) => {
   try {
     const {
       name, specialty, experienceYears, image,
-      description, fullDescription, services,
+      description, fullDescription, 
+      services, // Lưu ý: Frontend phải gửi mảng ID dịch vụ, ví dụ: ["65a...", "65b..."]
+      status    // <--- [MỚI] Thêm status để set trạng thái ban đầu nếu cần
     } = req.body;
 
     const doctor = new Doctor({
       name, specialty, experienceYears, image,
       description, fullDescription, services,
+      status: status || 'active' // Mặc định là active nếu không gửi
     });
 
     const createdDoctor = await doctor.save();
@@ -21,9 +24,10 @@ exports.createDoctor = async (req, res) => {
   }
 };
 
-// 2. GET ALL DOCTORS (Đã sửa: Bỏ populate)
+// 2. GET ALL DOCTORS
 exports.getAllDoctors = async (req, res) => {
   try {
+    // Không populate services để Frontend lấy được ID so sánh trong BookingModal
     const doctors = await Doctor.find({});
     res.status(200).json(doctors);
   } catch (error) {
@@ -31,10 +35,10 @@ exports.getAllDoctors = async (req, res) => {
   }
 };
 
-// 3. GET DOCTOR BY ID (Đã sửa: Bỏ populate)
+// 3. GET DOCTOR BY ID
 exports.getDoctorById = async (req, res) => {
   try {
-    const doctor = await Doctor.findById(req.params.id);
+    const doctor = await Doctor.findById(req.params.id).populate('services', 'name');
     if (doctor) {
       res.status(200).json(doctor);
     } else {
@@ -45,12 +49,14 @@ exports.getDoctorById = async (req, res) => {
   }
 };
 
-// 4. UPDATE DOCTOR (Đã đồng bộ tốt)
+// 4. UPDATE DOCTOR (QUAN TRỌNG: Đã thêm cập nhật status)
 exports.updateDoctor = async (req, res) => {
   try {
     const {
       name, specialty, experienceYears, image,
-      description, fullDescription, services,
+      description, fullDescription, 
+      services, // Frontend gửi mảng ID mới lên
+      status    // <--- [MỚI] Nhận status từ Admin (active/busy)
     } = req.body;
 
     const doctor = await Doctor.findById(req.params.id);
@@ -58,12 +64,16 @@ exports.updateDoctor = async (req, res) => {
     if (doctor) {
       doctor.name = name || doctor.name;
       doctor.specialty = specialty || doctor.specialty;
-      // Kiểm tra undefined để cho phép giá trị 0
       doctor.experienceYears = experienceYears !== undefined ? experienceYears : doctor.experienceYears;
       doctor.image = image || doctor.image;
       doctor.description = description || doctor.description;
       doctor.fullDescription = fullDescription || doctor.fullDescription;
-      doctor.services = services || doctor.services;
+      
+      // Cập nhật mảng ID dịch vụ
+      if (services) doctor.services = services;
+
+      // Cập nhật trạng thái (active/busy)
+      if (status) doctor.status = status; 
 
       const updatedDoctor = await doctor.save();
       res.status(200).json(updatedDoctor);
@@ -75,7 +85,7 @@ exports.updateDoctor = async (req, res) => {
   }
 };
 
-// 5. DELETE DOCTOR (Đã đồng bộ tốt)
+// 5. DELETE DOCTOR
 exports.deleteDoctor = async (req, res) => {
   try {
     const doctor = await Doctor.findById(req.params.id);
@@ -90,7 +100,7 @@ exports.deleteDoctor = async (req, res) => {
   }
 };
 
-// 6. CREATE REVIEW (Đã đồng bộ tốt với reviewSchema)
+// 6. CREATE REVIEW
 exports.createDoctorReview = async (req, res) => {
   const { rating, comment } = req.body;
   const doctorId = req.params.id;
