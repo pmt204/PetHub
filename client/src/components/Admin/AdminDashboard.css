@@ -13,7 +13,6 @@
   padding-left: 15px;
 }
 
-/* --- STAT CARDS --- */
 .stat-card {
   border: none;
   border-radius: 15px;
@@ -34,7 +33,6 @@
   z-index: 2;
 }
 
-/* Gradient Backgrounds */
 .bg-gradient-primary { background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); }
 .bg-gradient-success { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
 .bg-gradient-warning { background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%); }
@@ -64,7 +62,6 @@
   opacity: 0.9;
 }
 
-/* --- FILTER TOOLBAR --- */
 .filter-toolbar {
   background: white;
   padding: 20px;
@@ -108,7 +105,6 @@
   color: white;
 }
 
-/* --- DATA TABLE --- */
 .table-card {
   background: white;
   border-radius: 12px;
