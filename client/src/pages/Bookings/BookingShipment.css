@@ -12,14 +12,12 @@
     padding-bottom: 30px;
 }
 
-/* Nếu title nằm trong container chính */
 .shipment-container {
     padding-top: 140px;
     margin: 0 auto;
     max-width: 1200px;
 }
 
-/* Title cụ thể - Đẩy xuống thêm */
 .title-shipment {
     font-weight: 900;
     font-size: 3rem;
@@ -48,34 +46,28 @@
     box-shadow: 0 2px 8px rgba(139, 0, 0, 0.2);
 }
 
-/* Các class container phổ biến khác */
 .main-content,
 .content-wrapper,
 .shipment-wrapper {
     padding-top: 120px !important;
 }
 
-/* Nếu dùng Bootstrap row/col */
 .row-shipment,
 .shipment-row {
     padding-top: 20px;
 }
 
-/* Sticky elements - Đảm bảo không bị che */
 .sticky-top {
     top: 80px !important;
-    /* Navbar thường cao ~80px */
     z-index: 1020;
 }
 
-/* Card chứa title */
 .title-card,
 .header-card {
     padding-top: 25px;
     margin-top: 15px;
 }
 
-/* Responsive - Mobile cần padding-top nhiều hơn */
 @media (max-width: 768px) {
 
     .container-shipment,
@@ -90,7 +82,6 @@
     }
 }
 
-/* Universal fix cho tất cả tiêu đề trang */
 h1[class*="title"],
 h1.title-shipment,
 h2[class*="title"],
@@ -99,7 +90,6 @@ h2[class*="title"],
     padding-top: 20px !important;
 }
 
-/* Nếu title trong section */
 .section-title {
     padding-top: 25px;
     margin-top: 15px;

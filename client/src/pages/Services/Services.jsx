@@ -20,7 +20,6 @@ const Services = () => {
 
   return (
     <>
-      {/* Section 1: Giới thiệu */}
       <section className="py-5 border-bottom" style={{ width: '100%', backgroundColor: '#fff' }}>
         <div className="container px-4 px-md-5">
           <div className="row align-items-center gx-5">
@@ -59,7 +58,6 @@ const Services = () => {
         </div>
       </section>
 
-      {/* Section 2: Danh sách dịch vụ */}
       <section className="py-5" style={{ backgroundColor: '#FAF7F1', width: '100%' }}>
         <div className="container px-4 px-md-5">
           <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
@@ -102,7 +100,6 @@ const Services = () => {
         </div>
       </section>
 
-      {/* Section 4: Chăm sóc tận tâm */}
       <HeroServices />
 
     </>

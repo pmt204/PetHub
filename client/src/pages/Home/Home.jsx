@@ -13,7 +13,6 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 1. Lấy tin tức
     axios.get('http://localhost:5000/api/news')
       .then((res) => {
         const sortedNews = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -21,7 +20,6 @@ const Home = () => {
       })
       .catch((err) => console.error('Error fetching news:', err));
 
-    // 2. Lấy danh mục dịch vụ
     axios.get('http://localhost:5000/api/categoryservices')
       .then((res) => {
         const shuffled = res.data.sort(() => 0.5 - Math.random()).slice(0, 3);
@@ -29,7 +27,6 @@ const Home = () => {
       })
       .catch((err) => console.error('Error fetching categories:', err));
 
-    // 3. Lấy danh sách bác sĩ
     axios.get('http://localhost:5000/api/doctors')
       .then((res) => {
         const topDoctors = res.data.sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 4);
@@ -50,8 +47,6 @@ const Home = () => {
   return (
     <div>
       <HeroIntro />
-
-      {/* --- PHẦN 1: GIỚI THIỆU (NỀN TRẮNG) --- */}
       <section className="py-5" id="gioi-thieu" style={{ backgroundColor: '#FFFFFF' }}>
         <div className="container">
           <div className="row align-items-center g-4">
@@ -82,7 +77,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- PHẦN 2: DANH MỤC DỊCH VỤ (NỀN KEM - Đan xen) --- */}
       <motion.section 
         className="py-5" 
         style={{ backgroundColor: '#FAF7F1' }} 
@@ -127,7 +121,6 @@ const Home = () => {
         </div>
       </motion.section>
 
-      {/* --- PHẦN 3: BÁC SĨ NỔI BẬT (NỀN TRẮNG - Đan xen) --- */}
       <motion.section 
         className="py-5" 
         style={{ backgroundColor: '#FFFFFF' }} 
@@ -176,7 +169,6 @@ const Home = () => {
         </div>
       </motion.section>
 
-      {/* --- PHẦN 4: TIN TỨC (NỀN KEM - Đan xen) --- */}
       <motion.div 
         initial={{ opacity: 0, y: 50 }} 
         whileInView={{ opacity: 1, y: 0 }} 

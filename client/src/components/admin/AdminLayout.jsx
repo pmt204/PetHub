@@ -9,12 +9,11 @@ const AdminLayout = () => {
   const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    navigate('/'); // Quay lại trang chủ sau khi đăng xuất
+    navigate('/'); 
   };
 
   return (
     <div className="d-flex min-vh-100">
-      {/* Sidebar */}
       <div className="bg-dark text-white p-3" style={{ width: '250px', position: 'fixed', height: '100vh' }}>
         <h4 className="text-center mb-4"><strong style={{ color: 'white'}}>Admin Panel</strong></h4>
         <ul className="nav flex-column">
@@ -49,8 +48,8 @@ const AdminLayout = () => {
             </Link>
           </li>
           <li className="nav-item mb-2">
-            <Link to="/admin/doctors" className="nav-link text-white"> {/* Sửa 'nav-lin' */}
-              <FaStethoscope className="me-2" /> Quản Lý Bác Sĩ {/* Thêm icon và text */}
+            <Link to="/admin/doctors" className="nav-link text-white"> 
+              <FaStethoscope className="me-2" /> Quản Lý Bác Sĩ 
             </Link>
           </li>
           <li className="nav-item mb-2">
@@ -66,7 +65,6 @@ const AdminLayout = () => {
         </ul>
       </div>
 
-      {/* Main Content */}
       <div className="flex-grow-1" style={{ marginLeft: '250px' }}>
         <header className="bg-primary text-white p-3 shadow-sm">
           <h5 className="mb-0">Chào {user.username || 'Admin'}!</h5>

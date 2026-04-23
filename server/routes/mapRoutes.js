@@ -1,7 +1,6 @@
-// routes/mapRoutes.js – FIX + LOG CHI TIẾT ĐỂ DEBUG
 const express = require('express');
 const router = express.Router();
-const { calculateDistance } = require('../services/mapService');  // Đảm bảo tên file đúng
+const { calculateDistance } = require('../services/mapService');  
 
 router.post('/calculate', async (req, res) => {
   try {

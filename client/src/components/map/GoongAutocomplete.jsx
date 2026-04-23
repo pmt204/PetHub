@@ -1,9 +1,7 @@
-// src/components/map/GoongAutocomplete.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
-// BẠN PASTE KEY VÀO ĐÂY
-const GOONG_AUTOCOMPLETE_KEY = ''; // <-- PASTE KEY VÀO ĐÂY
+const GOONG_AUTOCOMPLETE_KEY = ''; 
 
 const GoongAutocomplete = ({ onPlaceSelect, placeholder = "Nhập địa chỉ..." }) => {
     const [query, setQuery] = useState('');
@@ -24,7 +22,7 @@ const GoongAutocomplete = ({ onPlaceSelect, placeholder = "Nhập địa chỉ..
                     params: {
                         api_key: GOONG_AUTOCOMPLETE_KEY,
                         input: query,
-                        location: '10.762622,106.660172', // gần TP.HCM
+                        location: '10.762622,106.660172', 
                         radius: 50000
                     }
                 });

@@ -40,7 +40,7 @@ const ServiceHealthDetail = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-    const [activeIndex, setActiveIndex] = useState(null); // Đảm bảo khởi tạo là null để không tự mở popup
+    const [activeIndex, setActiveIndex] = useState(null); 
     const buttonRefs = useRef([]);
 
     useEffect(() => {
@@ -68,13 +68,11 @@ const ServiceHealthDetail = () => {
     const openBookingModal = () => setIsBookingModalOpen(true);
     const closeBookingModal = () => setIsBookingModalOpen(false);
 
-    // Chia thành 3 cột gần bằng nhau
     const columns = [[], [], []];
     clinicalServices.forEach((item, idx) => {
         columns[idx % 3].push({ ...item, idx });
     });
 
-    // Tìm vị trí cột và hàng của activeIndex
     let popupCol = null, popupRow = null;
     columns.forEach((col, colIdx) => {
         col.forEach((item, rowIdx) => {
@@ -100,7 +98,6 @@ const ServiceHealthDetail = () => {
                 <HeroServiceDetail />
             </div>
 
-            {/* Section: Giới thiệu */}
             <motion.div
                 className="service-intro-outer"
                 initial="hidden"
@@ -135,7 +132,6 @@ const ServiceHealthDetail = () => {
                 </div>
             </motion.div>
 
-            {/* Section: Các dịch vụ */}
             <section
                 style={{
                     width: '100vw',
@@ -188,7 +184,6 @@ const ServiceHealthDetail = () => {
                                         width: '100%',
                                     }}
                                 >
-                                    {/* Hiển thị popup nếu cần */}
                                     {activeIndex !== null && popupCol === colIdx && (
                                         <div
                                             className="popup-col-overlay"
@@ -250,7 +245,6 @@ const ServiceHealthDetail = () => {
                                         </div>
                                     )}
 
-                                    {/* Các nút dịch vụ */}
                                     {!(activeIndex !== null && popupCol === colIdx) &&
                                         col.map((item, rowIdx) => (
                                             <motion.div
@@ -299,14 +293,12 @@ const ServiceHealthDetail = () => {
                             ))}
                         </div>
 
-                        {/* Nút Đặt Hẹn */}
                         <div className="text-center mt-3" data-aos="zoom-in">
                             <button className="book-btn btn-danger btn-lg rounded-pill" onClick={openBookingModal}>
                                 Đặt hẹn Ngay
                             </button>
                         </div>
 
-                        {/* Overlay toàn màn hình */}
                         {activeIndex !== null && (
                             <div
                                 style={{

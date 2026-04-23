@@ -2,7 +2,6 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 50px 20px 60px;
-    /* Tăng padding-top để tránh navbar fixed */
     background: linear-gradient(135deg, #FAF7F1 0%, #F5F5F0 50%, #FDFAF5 100%);
     text-align: center;
     min-height: calc(100vh - 200px);
@@ -266,7 +265,6 @@
     box-shadow: 0 10px 24px rgba(218, 165, 32, 0.22);
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
     .doctor-list {
         grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -277,7 +275,6 @@
 @media (max-width: 768px) {
     .doctor-container {
         padding: 100px 15px 50px;
-        /* Tăng padding-top cho mobile */
     }
 
     .doctor-container h1 {
@@ -319,7 +316,6 @@
     }
 }
 
-/* Loading & Error states */
 .doctor-container p[style*="color: red"] {
     background: rgba(220, 38, 38, 0.08);
     color: #DC2626;

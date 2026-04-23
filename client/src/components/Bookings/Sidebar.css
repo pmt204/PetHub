@@ -1,73 +1,47 @@
-/* Overlay - Phần nền mờ */
 .sidebar-overlay {
     position: fixed;
-    /* Giữ nguyên vị trí trên màn hình */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    /* Màu nền đen mờ */
     z-index: 1040;
-    /* Đảm bảo nó nằm trên nội dung trang nhưng dưới sidebar */
     opacity: 0;
-    /* Mặc định ẩn */
     visibility: hidden;
-    /* Mặc định ẩn hoàn toàn */
     transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-    /* Hiệu ứng chuyển động */
 }
 
-/* Khi sidebar-overlay hiện ra */
 .sidebar-overlay.show {
     opacity: 1;
     visibility: visible;
 }
 
-/* Sidebar chính */
 .sidebar {
     position: fixed;
-    /* Giữ nguyên vị trí trên màn hình */
     top: 0;
     right: 0;
-    /* Xuất hiện từ bên phải màn hình */
     width: 60%;
-    /* Chiều rộng của sidebar. Bạn có thể điều chỉnh theo ý muốn */
     max-width: 900px;
-    /* Đảm bảo không quá rộng trên màn hình nhỏ */
     height: 100%;
-    /* Chiếm toàn bộ chiều cao màn hình */
     background-color: #FAF7F1;
-    /* Nền trắng */
     box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
-    /* Đổ bóng sang trái */
     z-index: 1050;
-    /* Cao hơn overlay và các nội dung khác */
     transform: translateX(100%);
-    /* Mặc định ẩn hoàn toàn sang phải */
     transition: transform 0.3s ease-in-out;
-    /* Hiệu ứng trượt */
     display: flex;
     flex-direction: column;
-    /* Sắp xếp header, body theo chiều dọc */
 }
 
-/* Khi sidebar hiện ra */
 .sidebar.show {
     transform: translateX(0);
-    /* Trượt vào vị trí hiển thị */
 }
 
-/* Header của sidebar */
 .sidebar-header {
     padding: 15px 20px;
     border-bottom: 1px solid #eee;
-    /* Đường kẻ dưới */
     display: flex;
     justify-content: space-between;
-    /* Đẩy tiêu đề và nút đóng ra hai bên */
     align-items: center;
-    /* Căn giữa theo chiều dọc */
 }
 
 .sidebar-title {
@@ -75,7 +49,6 @@
     font-size: 1.25rem;
     font-weight: bold;
     color: #0d2554;
-    /* Màu primary của Bootstrap (có thể tùy chỉnh) */
 }
 
 .sidebar-close-btn {
@@ -85,25 +58,16 @@
     cursor: pointer;
     color: #666;
     padding: 0;
-    /* Bỏ padding mặc định của button */
 }
 
-/* Body của sidebar - nơi chứa nội dung chính */
 .sidebar-body {
     flex-grow: 1;
-    /* Cho phép body chiếm hết không gian còn lại */
     padding: 20px;
     overflow-y: auto;
-    /* Cho phép cuộn nếu nội dung dài */
 }
 
-/* Tùy chỉnh cho modal-content-custom bên trong sidebar nếu cần */
-/* Đảm bảo không có padding, shadow trùng lặp nếu modal-content-custom đã có */
 .sidebar-body .modal-content-custom {
     padding: 0 !important;
-    /* Loại bỏ padding nếu nó làm giãn nội dung */
     box-shadow: none !important;
-    /* Loại bỏ bóng nếu nó không phù hợp */
     border: none !important;
-    /* Loại bỏ viền nếu nó không phù hợp */
 }

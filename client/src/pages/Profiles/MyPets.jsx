@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import './MyPets.css'; // Import file CSS
+import './MyPets.css'; 
 
 const MyPets = () => {
   const [pets, setPets] = useState([]);
@@ -91,7 +91,6 @@ const MyPets = () => {
     <div style={{ backgroundColor: '#FAF7F1', minHeight: '100vh', paddingBottom: '60px' }}>
         <div className="container py-5" style={{ maxWidth: '1000px' }}>
         
-        {/* --- HEADER --- */}
         <div className="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
             <div>
             <h2 className="fw-bold mb-0" style={{ fontFamily: 'Quicksand, sans-serif', color: '#333' }}>
@@ -100,7 +99,6 @@ const MyPets = () => {
             <p className="text-muted mb-0">Quản lý hồ sơ các bé yêu của bạn</p>
             </div>
             
-            {/* Nút Thêm Mới: Màu ĐỎ ĐÔ (btn-red-primary) */}
             <button
             className={`btn btn-rounded px-4 py-2 ${showAddForm ? 'btn-secondary' : 'btn-red-primary'}`}
             onClick={() => setAddForm(!showAddForm)}
@@ -110,7 +108,6 @@ const MyPets = () => {
             </button>
         </div>
 
-        {/* --- FORM THÊM THÚ CƯNG --- */}
         {showAddForm && (
             <div className="card shadow border-0 mb-5 form-card animate__animated animate__fadeIn">
             <div className="card-body p-4">
@@ -153,7 +150,6 @@ const MyPets = () => {
                     </div>
                 </div>
                 <div className="col-12 text-end mt-3">
-                    {/* Nút Lưu: Màu ĐỎ ĐÔ (btn-red-primary) */}
                     <button 
                         className="btn px-5 py-2 btn-rounded btn-red-primary" 
                         onClick={handleAddPet}
@@ -166,7 +162,6 @@ const MyPets = () => {
             </div>
         )}
 
-        {/* --- DANH SÁCH THÚ CƯNG --- */}
         <div className="row g-4">
             {pets.length === 0 ? (
             <div className="col-12">
@@ -182,12 +177,10 @@ const MyPets = () => {
                 <div className="card h-100 border-0 shadow-sm pet-card position-relative">
                     <div className="card-body p-4 text-center">
                     
-                    {/* Icon đại diện */}
                     <div className="pet-icon-wrapper shadow-sm">
                         {getPetIcon(pet.type)}
                     </div>
 
-                    {/* Chế độ Sửa */}
                     {editPet?._id === pet._id ? (
                         <div className="mt-3 text-start">
                         <div className="mb-2">
@@ -213,13 +206,11 @@ const MyPets = () => {
                             </select>
                         </div>
                         <div className="d-flex gap-2 justify-content-center">
-                            {/* Nút Lưu khi sửa: Giữ màu xanh lá (Success) để phân biệt */}
                             <button className="btn btn-success btn-sm flex-grow-1" onClick={handleSaveEdit}>Lưu</button>
                             <button className="btn btn-secondary btn-sm flex-grow-1" onClick={() => setEditPet(null)}>Hủy</button>
                         </div>
                         </div>
                     ) : (
-                        /* Chế độ Xem */
                         <>
                         <h4 className="card-title fw-bold mb-1" style={{ color: '#333' }}>{pet.name}</h4>
                         <p className="text-muted mb-1 small text-uppercase fw-bold" style={{fontSize: '0.8rem', letterSpacing: '1px'}}>
@@ -230,7 +221,6 @@ const MyPets = () => {
                         </span>
 
                         <div className="d-grid gap-2">
-                            {/* Nút Xem hồ sơ: OUTLINE ĐỎ ĐÔ (btn-outline-red) */}
                             <Link
                             to={`/pet-profile/${pet._id}`}
                             className="btn btn-outline-red btn-rounded"
@@ -239,7 +229,6 @@ const MyPets = () => {
                             </Link>
                             
                             <div className="d-flex gap-2">
-                            {/* Nút Sửa: Giữ nguyên màu Vàng (Warning) */}
                             <button
                                 className="btn btn-white text-black flex-grow-1 btn-sm btn-rounded"
                                 onClick={() => setEditPet(pet)}
@@ -247,7 +236,6 @@ const MyPets = () => {
                             >
                                 <i className="bi bi-pencil-square me-1"></i> Sửa
                             </button>
-                            {/* Nút Xóa: Giữ nguyên màu Đỏ tươi (Danger) */}
                             <button
                                 className="btn btn-white text-black flex-grow-1 btn-sm btn-rounded"
                                 onClick={() => handleDeletePet(pet._id)}

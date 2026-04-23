@@ -65,7 +65,6 @@ const ServiceShipmentDetail = () => {
     const closeBookingModal = () => setIsBookingModalOpen(false);
     const handleBookingClick = () => navigate("/shipment");
 
-    // GALLERY
     const galleryImages = [
         '/images/shipment1.png',
         '/images/shipment2.png',
@@ -193,7 +192,6 @@ const ServiceShipmentDetail = () => {
             </section>
 
 
-            {/* BUTTON */}
             <section className="py-4 text-center" style={{ backgroundColor: "#fff" }} data-aos="zoom-in">
                 <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
                     <button
@@ -215,7 +213,6 @@ const ServiceShipmentDetail = () => {
                 </motion.div>
             </section>
 
-            {/* FEEDBACK */}
             <section className="py-5" style={{ backgroundColor: "#FAF7F1" }} data-aos="fade-up">
                 <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
                     <h2 className="text-center mb-2 fw-bold"

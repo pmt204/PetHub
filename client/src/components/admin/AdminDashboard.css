@@ -1,5 +1,5 @@
 .admin-dashboard-container {
-  background-color: #f8f9fa; /* Nền xám nhạt dịu mắt */
+  background-color: #f8f9fa; 
   min-height: 100vh;
   padding: 30px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -91,7 +91,7 @@
 }
 
 .btn-export {
-  background-color: #207245; /* Màu Excel */
+  background-color: #207245; 
   color: white;
   border: none;
   border-radius: 8px;

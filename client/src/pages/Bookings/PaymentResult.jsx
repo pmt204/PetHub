@@ -2,8 +2,7 @@ import React, { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaCheck, FaTimes, FaHome, FaHistory, FaReceipt } from 'react-icons/fa';
-import './PaymentResult.css'; // Import file CSS vừa tạo
-
+import './PaymentResult.css'; 
 const PaymentResult = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -11,7 +10,6 @@ const PaymentResult = () => {
     const success = searchParams.get('success') === 'true';
     const orderId = searchParams.get('orderId') || 'GD-' + Math.floor(Math.random() * 1000000);
 
-    // Hiệu ứng xuất hiện
     const containerVariants = {
         hidden: { opacity: 0, scale: 0.9 },
         visible: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: "easeOut" } }
@@ -19,35 +17,31 @@ const PaymentResult = () => {
 
     return (
         <div className="payment-page-wrapper">
-            {/* 1. Logo PetHub (Vì trang này đứng một mình nên cần Logo) */}
             <motion.img 
-                src="/images/logo.png" // Đảm bảo đường dẫn logo đúng
+                src="/images/logo.png" 
                 alt="PetHub Logo" 
                 className="pet-logo"
                 style={{ height: '70px', objectFit: 'contain' }}
                 initial={{ y: -50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                onError={(e) => e.target.style.display = 'none'} // Ẩn nếu lỗi ảnh
+                onError={(e) => e.target.style.display = 'none'} 
             />
 
-            {/* 2. Card Nội Dung */}
             <motion.div 
                 className="payment-card"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
             >
-                {/* Header màu sắc */}
                 <div 
                     className="p-4 text-center" 
                     style={{ 
-                        backgroundColor: success ? '#d1fae5' : '#fee2e2', // Xanh nhạt / Đỏ nhạt
+                        backgroundColor: success ? '#d1fae5' : '#fee2e2', 
                         height: '120px'
                     }}
                 >
                 </div>
 
-                {/* Icon nổi bật nằm giữa ranh giới header và body */}
                 <div className="text-center position-relative" style={{ top: '-50px', marginBottom: '-30px' }}>
                     <motion.div 
                         initial={{ scale: 0 }} 
@@ -69,7 +63,6 @@ const PaymentResult = () => {
                     </motion.div>
                 </div>
 
-                {/* Body */}
                 <div className="card-body px-5 pb-5 pt-4 text-center">
                     <h2 className="fw-bold mb-2" style={{ color: '#1f2937' }}>
                         {success ? 'Thanh toán thành công!' : 'Thanh toán thất bại'}
@@ -80,7 +73,6 @@ const PaymentResult = () => {
                             : 'Có vẻ như đã có lỗi xảy ra trong quá trình xử lý.'}
                     </p>
 
-                    {/* Chi tiết đơn hàng */}
                     <div className="bg-light p-3 rounded-3 mb-4 text-start border border-light">
                         <div className="d-flex justify-content-between mb-2">
                             <span className="text-secondary small"><FaReceipt className="me-2"/>Mã đơn hàng:</span>
@@ -92,7 +84,6 @@ const PaymentResult = () => {
                         </div>
                     </div>
 
-                    {/* Nút bấm */}
                     <div className="d-grid gap-3">
                         {success ? (
                             <>
@@ -129,7 +120,6 @@ const PaymentResult = () => {
                 </div>
             </motion.div>
 
-            {/* Footer nhỏ */}
             <div className="mt-4 text-muted small opacity-75">
                 © 2025 PetHub Services
             </div>

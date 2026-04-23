@@ -11,7 +11,6 @@ const HeroIntro = () => {
 
     return (
         <section className="position-relative" style={{ minHeight: '100vh' }}>
-            {/* Ảnh nền gif */}
             <video
                 autoPlay
                 loop
@@ -24,7 +23,6 @@ const HeroIntro = () => {
                 Trình duyệt của bạn không hỗ trợ thẻ video.
             </video>
 
-            {/* Nội dung dịch xuống phần dưới */}
             <div
                 className="container h-100 d-flex flex-column justify-content-start align-items-center text-white text-center"
                 style={{

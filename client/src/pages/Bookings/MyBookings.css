@@ -22,21 +22,18 @@
   transition: all 0.3s ease;
   height: 100%;
   position: relative;
-  overflow: visible; /* Bắt buộc để tooltip không bị cắt */
+  overflow: visible; 
   border: 1px solid rgba(0,0,0,0.02);
 }
 
-/* --- FIX LỖI ĐÈ TOOLTIP Ở ĐÂY --- */
 .booking-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-  /* Thêm z-index cao để card này nổi lên trên các card khác */
   z-index: 100; 
 }
 
 .card-body-custom {
   padding: 24px;
-  /* Đảm bảo nội dung bên trong không bị che */
   position: relative; 
   z-index: 1;
 }
@@ -139,7 +136,6 @@
   padding: 12px 16px;
   position: absolute;
   
-  /* Z-index cực cao cho tooltip */
   z-index: 9999; 
   
   bottom: calc(100% + 15px); 

@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom'; // <--- 1. Thêm useLocation
+import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom'; 
 import { FaInstagram, FaTiktok, FaFacebook, FaYoutube } from 'react-icons/fa';
 import FloatingContact from '../components/FloatingContact/FloatingContact';
 
 const Layout = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation(); // <--- 2. Khai báo hook location
+  const location = useLocation(); 
 
-  // --- LOGIC CUỘN LÊN ĐẦU TRANG ---
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [location.pathname]); // Chạy mỗi khi đường dẫn (pathname) thay đổi
-  // -------------------------------
+  }, [location.pathname]); 
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -26,7 +24,7 @@ const Layout = () => {
     setUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    navigate('/login'); // Nên chuyển hướng về login hoặc home sau khi đăng xuất
+    navigate('/login'); 
   };
 
   const handleNavigate = (path) => {
@@ -35,16 +33,13 @@ const Layout = () => {
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      {/* NAVBAR */}
       <header className="navbar navbar-expand-lg navbar-light fixed-top" style={{ backgroundColor: '#FAF7F1', height: '80px' }}>
         <div className="container">
-          {/* Logo */}
           <Link className="navbar-brand d-flex align-items-center fw-bold" to="/home" style={{ color: '#8B0000' }}>
             <img src="/images/logo.jpg" alt="NekoKin Logo" style={{ height: 40 }} className="me-2" />
             PetHub
           </Link>
 
-          {/* Mobile toggle */}
           <button
             className="navbar-toggler"
             type="button"
@@ -54,7 +49,6 @@ const Layout = () => {
             <span className="navbar-toggler-icon"></span>
           </button>
 
-          {/* Menu và nút */}
           <div className="collapse navbar-collapse" id="navbarNav" style={{ fontFamily: 'Quicksand, sans-serif', backgroundColor: '#FAF7F1' }}>
             <ul className="navbar-nav mx-auto">
               <li className="nav-item"><Link className="nav-link fw-semibold" to="/home">Trang chủ</Link></li>
@@ -165,17 +159,13 @@ const Layout = () => {
         </div>
       </header>
 
-      {/* TRANG NỘI DUNG */}
-      {/* Thêm padding-top 80px để tránh bị Navbar (fixed-top) che mất nội dung khi cuộn lên đầu */}
       <main className="flex-grow-1" style={{ paddingTop: '80px' }}>
         <Outlet />
       </main>
 
-      {/* FOOTER */}
       <footer className="text-white py-5 mt-auto" style={{ backgroundColor: '#0d2554' }}>
         <div className="container">
           <div className="row gy-4 gx-2">
-            {/* Cột 1: Giới thiệu */}
             <div className="col-12 col-md-4 text-start">
               <p style={{ fontFamily: 'Quicksand, sans-serif', lineHeight: '1.8', fontSize: '15px', color: 'rgba(255, 255, 255, 0.7)' }}>
                 <strong style={{ color: 'white', fontSize: '30px' }}>PetHub </strong> là cộng đồng cung cấp sản phẩm và dịch vụ chăm sóc thú cưng tốt nhất – nơi bạn có thể tin tưởng hoàn toàn cho bé cưng của mình.
@@ -190,7 +180,6 @@ const Layout = () => {
               </div>
             </div>
 
-            {/* Cột 2: Liên kết nhanh */}
             <div className="col-12 col-md-4 text-center">
               <h5 className="mb-3 fw-bold" style={{ color: 'white', fontFamily: 'Quicksand, sans-serif', letterSpacing: '1px' }}>Danh Mục</h5>
               <ul className="list-unstyled d-flex flex-column gap-2">
@@ -202,7 +191,6 @@ const Layout = () => {
               </ul>
             </div>
 
-            {/* Cột 3: Mạng xã hội */}
             <div className="col-12 col-md-4 text-start">
               <h5 className="mb-3 fw-bold" style={{ color: 'white', fontFamily: 'Quicksand, sans-serif', letterSpacing: '1px' }}>Mạng xã hội</h5>
               <div className="d-flex gap-3">

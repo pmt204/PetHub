@@ -1,24 +1,20 @@
 const axios = require('axios');
-const Booking = require('../models/Booking'); // Import Booking model
+const Booking = require('../models/Booking'); 
 
-// Resolve PayPal configuration
 const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
 const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
-const PAYPAL_MODE = (process.env.PAYPAL_MODE || 'sandbox').toLowerCase(); // 'sandbox' | 'live'
+const PAYPAL_MODE = (process.env.PAYPAL_MODE || 'sandbox').toLowerCase(); 
 const DEFAULT_PAYPAL_ENDPOINT = PAYPAL_MODE === 'live'
     ? 'https://api-m.paypal.com'
     : 'https://api-m.sandbox.paypal.com';
 const PAYPAL_API_ENDPOINT = process.env.PAYPAL_API_ENDPOINT || DEFAULT_PAYPAL_ENDPOINT;
-const PAYPAL_EXCHANGE_RATE = Number(process.env.PAYPAL_EXCHANGE_RATE || process.env.PAYPAL_USD_RATE || 0); // VND->USD
+const PAYPAL_EXCHANGE_RATE = Number(process.env.PAYPAL_EXCHANGE_RATE || process.env.PAYPAL_USD_RATE || 0); 
 
 function assertPayPalConfig() {
     if (!PAYPAL_CLIENT_ID || !PAYPAL_SECRET) {
         throw new Error('PAYPAL_CLIENT_ID hoặc PAYPAL_SECRET chưa được cấu hình.');
     }
     try {
-        // Validate URL shape early to avoid "Invalid URL"
-        // new URL throws if invalid
-        // eslint-disable-next-line no-new
         new URL(PAYPAL_API_ENDPOINT);
     } catch (_) {
         throw new Error(`PAYPAL_API_ENDPOINT không hợp lệ: ${PAYPAL_API_ENDPOINT}`);
@@ -29,16 +25,12 @@ function convertVndToUsdString(vndAmount) {
     const amountVnd = Number(vndAmount || 0);
     const rate = Number.isFinite(PAYPAL_EXCHANGE_RATE) && PAYPAL_EXCHANGE_RATE > 0
         ? PAYPAL_EXCHANGE_RATE
-        : 0.00004; // fallback ~1 USD ≈ 25,000 VND (configurable)
+        : 0.00004; 
     const usd = amountVnd * rate;
-    const normalized = Math.max(usd, 0.01); // PayPal minimum 0.01
+    const normalized = Math.max(usd, 0.01); 
     return normalized.toFixed(2);
 }
 
-/**
- * HÀM NỘI BỘ: Lấy Access Token (OAuth 2.0)
- * PayPal dùng Bearer Token, không dùng chữ ký (signature)
- */
 async function getPayPalAccessToken() {
     try {
         assertPayPalConfig();
@@ -63,26 +55,19 @@ async function getPayPalAccessToken() {
     }
 }
 
-/**
- * HÀM 1: TẠO ĐƠN HÀNG (API: /create-order)
- * (React gọi hàm này ĐẦU TIÊN)
- */
 exports.createOrder = async (req, res) => {
     try {
         const { bookingId } = req.body;
         
-        // 1. Tìm booking trong CSDL
         const booking = await Booking.findById(bookingId);
         if (!booking) {
             return res.status(404).json({ message: 'Không tìm thấy booking.' });
         }
         
-        // 2. Lấy Access Token
         const accessToken = await getPayPalAccessToken();
         
-        // 3. Chuẩn bị dữ liệu gửi PayPal
         const orderData = {
-            intent: 'CAPTURE', // Báo cho PayPal biết chúng ta muốn "Capture" (lấy tiền) ngay
+            intent: 'CAPTURE', 
             purchase_units: [
                 {
                     amount: {
@@ -90,7 +75,7 @@ exports.createOrder = async (req, res) => {
                         value: convertVndToUsdString(booking.totalAmount)
                     },
                     description: `Thanh toan dat lich cho NekoKin: ${booking._id}`,
-                    reference_id: booking._id.toString() // Lưu bookingId của chúng ta
+                    reference_id: booking._id.toString() 
                 }
             ],
             application_context: {
@@ -100,7 +85,6 @@ exports.createOrder = async (req, res) => {
             }
         };
 
-        // 4. Gọi API Create Order của PayPal
         const response = await axios.post(
             `${PAYPAL_API_ENDPOINT}/v2/checkout/orders`,
             orderData,
@@ -112,7 +96,6 @@ exports.createOrder = async (req, res) => {
             }
         );
 
-        // 5. Trả về orderID (của PayPal) cho React
         res.status(200).json({ orderID: response.data.id });
 
     } catch (error) {
@@ -122,21 +105,15 @@ exports.createOrder = async (req, res) => {
     }
 };
 
-/**
- * HÀM 2: HOÀN TẤT ĐƠN HÀNG (API: /capture-order)
- * (React gọi hàm này CUỐI CÙNG, sau khi user xác nhận)
- */
 exports.captureOrder = async (req, res) => {
     try {
-        const { orderID } = req.body; // Đây là orderID của PayPal (nhận từ React)
+        const { orderID } = req.body; 
 
-        // 1. Lấy Access Token
         const accessToken = await getPayPalAccessToken();
 
-        // 2. Gọi API Capture Order của PayPal
         const response = await axios.post(
             `${PAYPAL_API_ENDPOINT}/v2/checkout/orders/${orderID}/capture`,
-            {}, // Body rỗng
+            {}, 
             {
                 headers: {
                     'Content-Type': 'application/json',
@@ -147,14 +124,11 @@ exports.captureOrder = async (req, res) => {
         
         const captureData = response.data;
 
-        // 3. Kiểm tra thanh toán thành công
         if (captureData.status === 'COMPLETED') {
-            // 4. Lấy bookingId của chúng ta (lưu ở reference_id)
             const bookingId = captureData.purchase_units[0].reference_id;
             const capture = captureData.purchase_units?.[0]?.payments?.captures?.[0];
             const paypalTransactionId = capture?.id || captureData.id;
             
-            // 5. Cập nhật CSDL
             await Booking.findByIdAndUpdate(bookingId, {
                 paymentStatus: 'success',
                 paypalTransactionId
@@ -163,7 +137,6 @@ exports.captureOrder = async (req, res) => {
             console.log(`(PayPal) Giao dịch ${bookingId} thành công.`);
             res.status(200).json({ message: 'Thanh toán thành công!' });
         } else {
-            // Thanh toán chưa hoàn tất (ví dụ: đang chờ xử lý)
             res.status(400).json({ message: 'Thanh toán PayPal chưa hoàn tất.', data: captureData });
         }
 

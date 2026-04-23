@@ -1,4 +1,3 @@
-// src/components/CustomerDetail.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -16,17 +15,14 @@ const CustomerDetail = () => {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('Không tìm thấy token, vui lòng đăng nhập');
 
-        // Lấy thông tin khách hàng
         const customerResponse = await axios.get(`http://localhost:5000/api/customers/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         setCustomer(customerResponse.data);
 
-        // Lấy danh sách booking của khách hàng
         const bookingsResponse = await axios.get(`http://localhost:5000/api/customers/${id}/bookings`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
-        // Lọc các booking đã hoàn thành
         const completed = bookingsResponse.data.filter(booking => booking.status === 'completed');
         setCompletedBookings(completed);
 

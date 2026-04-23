@@ -6,8 +6,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 
-
-
 const ServiceGroomDetail = () => {
     const { id: categoryId } = useParams();
     const [category, setCategory] = useState(null);
@@ -63,7 +61,6 @@ const ServiceGroomDetail = () => {
     return (
         <>
             <div style={{ marginTop: '1px' }}>
-                {/* Intro section */}
                 <section className="after-grooming">
                     <div className="container">
                         <h3 className="heading text-center mb-4">Làm đẹp thú cưng</h3>
@@ -84,7 +81,6 @@ const ServiceGroomDetail = () => {
                     </div>
                 </section>
 
-                {/* Dot Image Section */}
                 <section className="image-section">
                     <div className="container position-relative my-5">
                         <div className="grooming-content position-relative text-center">
@@ -125,7 +121,6 @@ const ServiceGroomDetail = () => {
                 </section>
             </div>
 
-            {/* Gallery */}
             <section className="gallery-section px-30 py-5" style={{ backgroundColor: '#ffff' }}>
                 <h3 className="gallery-section1 text-center mb-4">Chăm sóc cho thú cưng từ đầu đến đuôi</h3>
                 <Slider
@@ -192,7 +187,6 @@ const ServiceGroomDetail = () => {
             </section>
 
 
-            {/* Booking Modal */}
             <BookingModal
                 isOpen={isBookingModalOpen}
                 onClose={closeBookingModal}

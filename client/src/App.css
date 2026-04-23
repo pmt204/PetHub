@@ -1,4 +1,3 @@
-/* App.css */
 .card-title {
   font-size: 1.25rem;
   font-weight: bold;
@@ -33,12 +32,8 @@
 }
 
 
-
-
-
 .service-card {
   border-radius: 1rem;
-  /* overflow: hidden; */
   transition: transform 0.4s ease;
   background-color: #0d2554;
 }
@@ -66,7 +61,6 @@
   padding: 1rem;
 }
 
-/* Service Introduction Section */
 .service-intro-outer {
   width: 100vw;
   position: relative;
@@ -130,7 +124,6 @@
   }
 }
 
-/* ServiceGroomDetail */
 .grooming-content {
   position: relative;
   width: fit-content;
@@ -202,13 +195,10 @@
   background-color: #8b0000;
   color: white;
   padding: 9px 70px;
-  /* tăng chiều ngang */
   border: none;
   font-weight: normal;
-  /* bỏ in đậm */
   cursor: pointer;
   border-radius: 6px;
-  /* bo nhẹ góc */
   font-size: 16px;
   transition: background-color 0.3s ease;
 }
@@ -241,7 +231,6 @@
   margin-right: auto;
 }
 
-/* Animation */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -262,7 +251,6 @@
   background-color: #FAF7F1;
 }
 
-/* dot-box */
 .dot-description-box {
   background-color: #0d2554;
   color: white;
@@ -310,15 +298,12 @@
   }
 }
 
-/* {Gallery} */
 .gallery-section1 {
   font-family: 'Quicksand', sans-serif;
   font-weight: 700;
   color: #0d2554;
   font-size: 2.5rem;
   text-align: center;
-  /* margin-bottom: 2rem; */
-  /* margin-top: 30px; */
 }
 
 .gallery-section {
@@ -331,7 +316,6 @@
 .gallery-image-wrapper {
   width: 48%;
   padding-top: 60%;
-  /* tạo tỷ lệ ảnh hình chữ nhật ngang */
   position: relative;
   overflow: hidden;
   border-radius: 10px;
@@ -405,7 +389,6 @@
   justify-content: center;
   color: rgb(205, 11, 11);
   top: 45%;
-  /* Đặt giữa chiều cao ảnh */
   transform: translateY(-50%);
 }
 
@@ -425,7 +408,6 @@
 }
 
 
-/* Biểu tượng mũi tên */
 .slick-prev::before,
 .slick-next::before {
   font-size: 20px;
@@ -468,18 +450,12 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  /* Ngăn cuộn ngang toàn trang */
 }
 
 .gallery-row+.gallery-row {
   margin-top: 10px;
-  /* hoặc 5px, hoặc 0 nếu muốn sát hẳn */
 }
 
-/* hotel-cat */
-/* App.css */
-
-/* Font và reset cơ bản */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #FAF7F1;
@@ -488,7 +464,6 @@ body {
   scroll-behavior: smooth;
 }
 
-/* Tiêu đề chính */
 h1,
 h2,
 h3,
@@ -498,13 +473,11 @@ h5 {
   color: #0d2554;
 }
 
-/* Phần mô tả */
 .text-secondary {
   color: #6c757d;
   font-size: 1.1rem;
 }
 
-/* Button đặt phòng */
 .btn-danger {
   background-color: #8B0000;
   border: none;
@@ -516,13 +489,11 @@ h5 {
   transform: scale(1.05);
 }
 
-/* Ảnh tròn trung tâm */
 .img-fluid.rounded-circle {
   object-fit: cover;
   border: 6px solid #0d2554;
 }
 
-/* Highlight text xung quanh ảnh tròn */
 .position-absolute small {
   background-color: #FAF7F1;
   padding: 4px 8px;
@@ -531,7 +502,6 @@ h5 {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Hình ảnh dịch vụ */
 .img-fluid.rounded.shadow-sm {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -541,7 +511,6 @@ h5 {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* Modal booking overlay nếu cần */
 .react-modal-overlay {
   background-color: rgba(0, 0, 0, 0.6);
 }
@@ -555,7 +524,6 @@ h5 {
   position: relative;
 }
 
-/* Responsive tối ưu */
 @media (max-width: 768px) {
   .text-secondary {
     font-size: 1rem;
@@ -613,7 +581,6 @@ h5 {
   width: 100%;
   max-width: 300px;
   border-radius: 25px;
-  /* 👉 Bo góc ảnh */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   margin-bottom: 30px;
   transition: transform 0.3s ease;
@@ -636,7 +603,6 @@ h5 {
   font-size: 16px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .testimonial-title {
     font-size: 26px;
@@ -663,7 +629,6 @@ h5 {
   margin: 0 -10px;
 }
 
-/* Quan trọng: tránh slider bị height = 0 */
 .slick-slide img,
 .bg-cover,
 .gallery-img-wrapper {

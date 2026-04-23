@@ -1,4 +1,3 @@
-// customerController.js
 const Customer = require('../models/Customer');
 const Pet = require('../models/Pet');
 const Booking = require('../models/Booking');
@@ -26,7 +25,6 @@ exports.getCustomerById = async (req, res) => {
   }
 };
 
-// API mới để lấy danh sách booking theo customerId
 exports.getBookingsByCustomerId = async (req, res) => {
   try {
     const { customerId } = req.params;

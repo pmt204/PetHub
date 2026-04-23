@@ -6,7 +6,7 @@ import Sidebar from './Sidebar';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import TimeSlotPicker from './TimeSlotPicker';
-import GoongMap from '../map/GoongMap';
+import GoongMap from '../Map/GoongMap';
 import GoongAutocomplete from '../map/GoongAutocomplete';
 import 'react-datepicker/dist/react-datepicker.css';
 import './BookingModal.css';
@@ -30,10 +30,8 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
         bookingTime: '',
         notes: '',
         subServiceIds: [],
-
-        // PHẦN VẬN CHUYỂN MỚI
         needsTransport: false,
-        transportType: null, // 'pickup' | 'return' | 'both'
+        transportType: null, 
         homeAddress: '',
         selectedTransportServiceId: '',
     });
@@ -51,7 +49,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
     const serviceScrollRef = useRef(null);
     const doctorScrollRef = useRef(null);
 
-    // Reset khi mở modal
     useEffect(() => {
         if (isOpen) {
             setStep(1);
@@ -78,7 +75,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
             document.body.classList.remove('modal-open');
         }
 
-        // Cuộn ngang cho dịch vụ & bác sĩ
         const preventVerticalScroll = (e) => {
             e.preventDefault();
             e.currentTarget.scrollLeft += e.deltaY;
@@ -143,7 +139,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
         }
     };
 
-    // Lấy chi tiết dịch vụ khi chọn
     useEffect(() => {
         if (formData.serviceId) {
             axios.get(`http://localhost:5000/api/services/${formData.serviceId}`)
@@ -154,7 +149,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
         }
     }, [formData.serviceId]);
 
-    // Tính khoảng cách vận chuyển
     useEffect(() => {
         const timer = setTimeout(async () => {
             if (formData.needsTransport && formData.homeAddress && formData.selectedTransportServiceId) {
@@ -185,7 +179,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
         return () => clearTimeout(timer);
     }, [formData.homeAddress, formData.transportType, formData.selectedTransportServiceId, formData.needsTransport]);
 
-    // Kiểm tra phòng khách sạn
     const checkAvailability = useCallback(
         debounce(async () => {
             if (selectedServiceDetails?.category === 3 && formData.checkIn && formData.checkOut) {
@@ -269,20 +262,14 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            // --- BƯỚC 1: XỬ LÝ GỘP NGÀY + GIỜ (FIX LỖI 00:00) ---
             let finalBookingDate = formData.bookingDate;
 
-            // Nếu không phải khách sạn (Spa/Vet) và ĐÃ chọn giờ
             if (selectedServiceDetails?.category !== 3 && formData.bookingDate && formData.bookingTime) {
-                // Tách giờ và phút từ chuỗi "09:30"
                 const [hours, minutes] = formData.bookingTime.split(':');
-                
-                // Dùng moment để set giờ vào ngày đã chọn
-                finalBookingDate = moment(formData.bookingDate)
+                                finalBookingDate = moment(formData.bookingDate)
                     .set({ hour: parseInt(hours), minute: parseInt(minutes), second: 0 })
-                    .toDate(); // Chuyển về đối tượng Date
+                    .toDate(); 
             } else if (selectedServiceDetails?.category === 3) {
-                // Nếu là khách sạn, lấy ngày Check-in
                 finalBookingDate = formData.checkIn;
             }
             const payload = {
@@ -301,7 +288,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                 selectedTransportServiceId: formData.selectedTransportServiceId || undefined,
             };
 
-            // PHẢI GÁN RESPONSE ĐỂ LẤY DATA
             const response = await axios.post(
                 'http://localhost:5000/api/bookings/unified',
                 payload,
@@ -310,14 +296,13 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                 }
             );
 
-            // ĐÓNG MODAL VÀ CHUYỂN QUA TRANG KẾT QUẢ
             onClose();
 
             navigate('/booking-result', {
                 state: {
                     success: true,
                     message: '',
-                    bookingId: response.data.data._id // ĐÚNG RỒI ĐÂY!
+                    bookingId: response.data.data._id 
                 }
             });
         } catch (err) {
@@ -354,11 +339,8 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
     };
 
     const filteredDoctors = doctors.filter(doctor => {
-    // 1. Nếu chưa chọn dịch vụ -> Hiển thị tất cả (hoặc ẩn tùy bạn, ở đây tôi để hiển thị hết)
     if (!formData.serviceId) return true;
 
-    // 2. Nếu bác sĩ có danh sách services chứa ID dịch vụ đang chọn -> Hiển thị
-    // Lưu ý: doctor.services bây giờ là mảng ID string hoặc objectID
     return doctor.services && doctor.services.includes(formData.serviceId);
     });
 
@@ -376,12 +358,10 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                     </div>
                 </div>
 
-                {/* BƯỚC 1: CHỌN DỊCH VỤ, BÁC SĨ, THÚ CƯNG */}
                 {step === 1 && (
                     <div>
                         <h4 className="mb-4 text-center">Chọn dịch vụ</h4>
 
-                        {/* PHẦN DỊCH VỤ */}
                         <div className="mb-5">
                             <h5 className="text-primary fw-bold mb-3">
                                 {currentCategoryId === '1' ? 'Chọn gói khám' : 'Chọn dịch vụ'}
@@ -422,12 +402,10 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                             {!formData.serviceId && <small className="text-danger">Vui lòng chọn một dịch vụ</small>}
                         </div>
 
-                        {/* PHẦN BÁC SĨ */}
                         {currentCategoryId === '1' && (
                             <div className="mb-5">
                                 <h5 className="text-danger fw-bold mb-3">Chọn bác sĩ</h5>
                                 
-                                {/* Nếu đã chọn dịch vụ mà không có bác sĩ nào phù hợp */}
                                 {formData.serviceId && filteredDoctors.length === 0 && (
                                     <div className="alert alert-warning">Chưa có bác sĩ nào đảm nhận dịch vụ này.</div>
                                 )}
@@ -436,18 +414,14 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                                     <div className="d-flex gap-3 pb-3">
                                         {filteredDoctors.length > 0 ? (
                                             filteredDoctors.map(doctor => {
-                                                // Kiểm tra trạng thái bận
                                                 const isBusy = doctor.status === 'busy';
-                                                // Kiểm tra đang chọn
                                                 const isSelected = formData.doctorId === doctor._id;
 
                                                 return (
                                                     <div
                                                         key={doctor._id}
-                                                        // Thêm class 'disabled' nếu bận
                                                         className={`doctor-card text-center flex-shrink-0 ${isSelected ? 'selected' : ''} ${isBusy ? 'doctor-busy' : ''}`}
                                                         onClick={() => {
-                                                            // Nếu bận thì không cho click
                                                             if (!isBusy) {
                                                                 setFormData(prev => ({ ...prev, doctorId: doctor._id }));
                                                                 setError('');
@@ -466,16 +440,13 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                                                                     objectFit: 'cover', 
                                                                     border: '4px solid #fff', 
                                                                     boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                                                                    // Nếu bận thì làm ảnh xám đi
                                                                     filter: isBusy ? 'grayscale(100%)' : 'none'
                                                                 }}
                                                                 onError={(e) => { e.target.src = 'http://localhost:5000/api/images/default-doctor.jpg'; }}
                                                             />
                                                             
-                                                            {/* Dấu tích xanh khi chọn */}
                                                             {isSelected && <div className="selected-check-doctor">✓</div>}
 
-                                                            {/* DẤU CHẤM THAN KHI BẬN (Yêu cầu 1) */}
                                                             {isBusy && (
                                                                 <div className="busy-badge" title="Bác sĩ đang bận">
                                                                     !
@@ -485,7 +456,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                                                         
                                                         <h6 className="mb-0 fw-bold">{doctor.name}</h6>
                                                         
-                                                        {/* Hiển thị text trạng thái */}
                                                         {isBusy ? (
                                                             <p className="text-danger small mb-1 fw-bold">Đang bận</p>
                                                         ) : (
@@ -495,7 +465,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                                                 );
                                             })
                                         ) : (
-                                            // Nếu chưa chọn dịch vụ thì nhắc chọn, hoặc báo đang tải
                                             <p className="text-muted">
                                                 {!formData.serviceId ? 'Vui lòng chọn dịch vụ trước để xem bác sĩ phù hợp.' : 'Đang tải bác sĩ...'}
                                             </p>
@@ -506,7 +475,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                             </div>
                         )}
 
-                        {/* PHẦN THÚ CƯNG */}
                         <div className="mb-4">
                             <h5 className="fw-bold mb-3">Chọn thú cưng</h5>
                             {pets.length === 0 ? (
@@ -544,7 +512,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                     </div>
                 )}
 
-                {/* BƯỚC 2: CHỌN NGÀY GIỜ */}
                 {step === 2 && (
                     <div>
                         <h4 className="mb-3">Chọn ngày giờ</h4>
@@ -643,14 +610,12 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                     </div>
                 )}
 
-                {/* BƯỚC 3: VẬN CHUYỂN – DROPDOWN + GÓI TRƯỚC + ĐỊA CHỈ + BẢN ĐỒ */}
                 {step === 3 && (
                     <div>
                         <h4 className="mb-4 text-center fw-bold text-primary">
                             Vận chuyển đưa/rước bé (tùy chọn)
                         </h4>
 
-                        {/* DỊCH VỤ PHỤ – CHỈ HIỆN KHI LÀ KHÁCH SẠN (category 3) */}
                         {selectedServiceDetails?.category === 3 && subServices.length > 0 && (
                             <div className="card border-0 shadow-sm mb-4">
                                 <div className="card-body p-4 bg-light">
@@ -684,7 +649,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                             </div>
                         )}
 
-                        {/* PHẦN CHỌN CÓ/KHÔNG CẦN VẬN CHUYỂN + LOẠI VẬN CHUYỂN BẰNG DROPDOWN */}
                         <div className="card border-0 shadow-sm mb-4">
                             <div className="card-body p-4">
                                 <h5 className="mb-4 text-center">Bạn có muốn chúng tôi đưa/rước bé không?</h5>
@@ -714,10 +678,8 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                                     <option value="no">Không cần, tôi tự mang bé đến</option>
                                     <option value="pickup">Chỉ ĐÓN bé tại nhà</option>
                                     <option value="return">Chỉ TRẢ bé về nhà</option>
-                                    {/* <option value="both">CẢ 2 CHIỀU (ĐÓN + TRẢ) – Tiết kiệm nhất!</option> */}
                                 </select>
 
-                                {/* HIỂN THỊ ICON ĐẸP KHI CHỌN CÓ VẬN CHUYỂN */}
                                 {formData.needsTransport && (
                                     <div className="text-center mt-3">
                                         {formData.transportType === 'pickup' && <span className="fs-1 text-success">🚗 Đón bé</span>}
@@ -728,10 +690,8 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                             </div>
                         </div>
 
-                        {/* NẾU CẦN VẬN CHUYỂN → HIỂN THỊ GÓI + ĐỊA CHỈ + BẢN ĐỒ */}
                         {formData.needsTransport && (
                             <>
-                                {/* 1. CHỌN GÓI VẬN CHUYỂN – ĐƯA LÊN TRÊN */}
                                 <div className="mb-4">
                                     <label className="form-label fw-bold fs-5">Chọn gói vận chuyển</label>
                                     <select
@@ -749,7 +709,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                                     </select>
                                 </div>
 
-                                {/* AUTOCOMPLETE SIÊU THÔNG MINH */}
                                 <div className="mb-4">
                                     <label className="form-label fw-bold fs-5">Địa chỉ nhà bạn</label>
                                     <GoongAutocomplete
@@ -764,7 +723,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                                     )}
                                 </div>
 
-                                {/* BẢN ĐỒ – VẼ ĐƯỜNG XANH LÁ */}
                                 <div className="mb-4 rounded-4 overflow-hidden shadow-lg" style={{ height: '380px' }}>
                                     <GoongMap
                                         pickup={formData.transportType.includes('pickup') ? formData.homeAddress : SHOP_ADDRESS}
@@ -772,7 +730,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                                     />
                                 </div>
 
-                                {/* KHOẢNG CÁCH */}
                                 {distanceInfo && (
                                     <div className="alert alert-success text-center py-3 mb-4">
                                         <strong>Khoảng cách: {distanceInfo.distance}</strong> • Thời gian di chuyển: <strong>{distanceInfo.duration}</strong>
@@ -782,7 +739,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                             </>
                         )}
 
-                        {/* NÚT TIẾP TỤC */}
                         <div className="d-flex gap-3 mt-4">
                             <button type="button" className="btn btn-outline-secondary flex-fill py-3 fw-bold" onClick={handlePrevStep}>
                                 Quay lại
@@ -799,12 +755,10 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                     </div>
                 )}
 
-                {/* BƯỚC 4: NHẬP GHI CHÚ Ở ĐÂY + HIỂN THỊ TRONG TÓM TẮT DỊCH VỤ CHÍNH */}
                 {step === 4 && (
                     <div>
                         <h4 className="text-center mb-4 fw-bold text-primary">Xác nhận đơn hàng</h4>
 
-                        {/* Ô NHẬP GHI CHÚ – NGAY ĐẦU STEP 4 */}
                         <div className="card border-0 shadow-sm mb-4">
                             <div className="card-body">
                                 <h5 className="text-success fw-bold mb-3">📝 Ghi chú thêm (tùy chọn)</h5>
@@ -818,7 +772,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                             </div>
                         </div>
 
-                        {/* DỊCH VỤ CHÍNH – HIỂN THỊ GHI CHÚ Ở ĐÂY NẾU CÓ */}
                         <div className="card border-0 shadow-sm mb-4">
                             <div className="card-body">
                                 <h5 className="text-success fw-bold mb-3">Dịch vụ chính</h5>
@@ -826,7 +779,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                                     <div className="flex-grow-1">
                                         <p className="mb-1 fw-bold">{selectedServiceDetails?.name || 'Đang tải...'}</p>
                                         
-                                        {/* HIỂN THỊ GHI CHÚ NGAY DƯỚI TÊN DỊCH VỤ */}
                                         {formData.notes && (
                                             <p className="mb-2 text-muted fst-italic border-start border-success border-4 ps-3">
                                                 "{formData.notes}"
@@ -866,7 +818,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                             </div>
                         </div>
 
-                    {/* DỊCH VỤ PHỤ */}
                     {subServices.length > 0 && formData.subServiceIds.length > 0 && (
                     <div className="card border-0 shadow-sm mb-4">
                         <div className="card-body">
@@ -891,7 +842,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                     </div>
                     )}
 
-                    {/* VẬN CHUYỂN – NẾU CÓ */}
                     {formData.needsTransport && distanceInfo && formData.selectedTransportServiceId && transportServices.length > 0 && (
                     <div className="card border-0 shadow-sm mb-4">
                         <div className="card-body">
@@ -933,7 +883,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                     </div>
                     )}
 
-                    {/* TỔNG TIỀN – NỔI BẬT NHẤT */}
                     <div className="card border-0 shadow-lg bg-white text-white">
                         <div className="card-body text-center py-4">
                             <h3 className="mb-2">TỔNG CỘNG</h3>
@@ -943,7 +892,6 @@ const BookingModal = ({ isOpen, onClose, initialCategoryId }) => {
                         </div>
                     </div>
 
-                    {/* NÚT HÀNH ĐỘNG */}
                     <div className="d-flex gap-3 mt-4">
                     <button 
                         type="button" 

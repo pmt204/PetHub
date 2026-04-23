@@ -1,4 +1,3 @@
-// src/components/map/GoongMap.jsx
 import React, { useEffect, useRef } from 'react';
 import goongjs from '@goongmaps/goong-js';
 
@@ -11,7 +10,6 @@ const GoongMap = ({ pickup, dropoff }) => {
   const MAP_KEY = '';
   const API_KEY = '';
 
-  // Helper: Tạo element từ HTML cho marker
   const createMarkerElement = (color, letter) => {
     const div = document.createElement('div');
     div.style.cssText = `
@@ -53,7 +51,6 @@ const GoongMap = ({ pickup, dropoff }) => {
         style: 'https://tiles.goong.io/assets/goong_map_web.json',
         center: [106.7009, 10.7769],
         zoom: 11
-        // Bỏ pitch để giảm warning Canvas
       });
     }
 
@@ -63,7 +60,6 @@ const GoongMap = ({ pickup, dropoff }) => {
           map.current.removeLayer('route');
           map.current.removeSource('route');
         }
-        // Reset marker về trung tâm nếu không có địa chỉ
         if (pickupMarker.current) pickupMarker.current.setLngLat([106.7009, 10.7769]);
         if (dropoffMarker.current) dropoffMarker.current.setLngLat([106.7009, 10.7769]);
         return;
@@ -87,8 +83,7 @@ const GoongMap = ({ pickup, dropoff }) => {
         const start = coordinates[0];
         const end = coordinates[coordinates.length - 1];
 
-        // Tạo hoặc cập nhật marker đón (xanh lá + chữ A)
-        const pickupEl = createMarkerElement('#4CAF50', 'A');  // Xanh lá
+        const pickupEl = createMarkerElement('#4CAF50', 'A');  
         if (!pickupMarker.current) {
           pickupMarker.current = new goongjs.Marker({ element: pickupEl })
             .setLngLat(start)
@@ -99,8 +94,7 @@ const GoongMap = ({ pickup, dropoff }) => {
           pickupMarker.current.setPopup(new goongjs.Popup({ offset: [0, -30] }).setHTML(`<div class="p-2"><strong>Điểm đón</strong><br>${pickup}</div>`));
         }
 
-        // Tạo hoặc cập nhật marker trả (đỏ + chữ B)
-        const dropoffEl = createMarkerElement('#F44336', 'B');  // Đỏ
+        const dropoffEl = createMarkerElement('#F44336', 'B');  
         if (!dropoffMarker.current) {
           dropoffMarker.current = new goongjs.Marker({ element: dropoffEl })
             .setLngLat(end)
@@ -111,7 +105,6 @@ const GoongMap = ({ pickup, dropoff }) => {
           dropoffMarker.current.setPopup(new goongjs.Popup({ offset: [0, -30] }).setHTML(`<div class="p-2"><strong>Điểm trả</strong><br>${dropoff}</div>`));
         }
 
-        // Vẽ đường xanh (giữ nguyên)
         if (map.current.getLayer('route')) {
           map.current.removeLayer('route');
           map.current.removeSource('route');
@@ -140,13 +133,12 @@ const GoongMap = ({ pickup, dropoff }) => {
           layout: { 'line-cap': 'round', 'line-join': 'round' }
         });
 
-        // Zoom vừa lộ trình
         const bounds = new goongjs.LngLatBounds();
         coordinates.forEach(c => bounds.extend(c));
         map.current.fitBounds(bounds, { padding: 120, duration: 1500 });
 
       } catch (err) {
-        console.log('Update map error:', err.message);  // Chỉ log để debug
+        console.log('Update map error:', err.message);  
       }
     };
 

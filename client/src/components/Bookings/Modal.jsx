@@ -1,10 +1,8 @@
-// src/components/Modal.jsx
-import React, { useEffect, useRef, useCallback } from 'react'; // <-- Thêm useCallback vào đây
+import React, { useEffect, useRef, useCallback } from 'react'; 
 
 const Modal = ({ isOpen, onClose, children }) => {
     const modalRef = useRef(null);
 
-    // Effect để xử lý việc hiển thị/ẩn modal bằng class của Bootstrap
     useEffect(() => {
         const modalElement = modalRef.current;
         if (!modalElement) return;
@@ -30,7 +28,6 @@ const Modal = ({ isOpen, onClose, children }) => {
         };
     }, [isOpen]);
 
-    // Xử lý sự kiện khi modal của Bootstrap được ẩn hoàn toàn
     const handleModalHidden = useCallback(() => {
         if (!isOpen) {
             onClose();

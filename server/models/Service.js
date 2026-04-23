@@ -4,7 +4,7 @@ const serviceSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
   image: { type: String, required: true },
-  price: { type: Number, required: true, min: 0 }, // Giá của dịch vụ chính
+  price: { type: Number, required: true, min: 0 }, 
   category: { 
     type: Number, 
     required: true 
@@ -15,7 +15,6 @@ const serviceSchema = new mongoose.Schema({
   }
 });
 
-// Pre-save hook để kiểm tra totalRooms cho danh mục "Khách sạn thú cưng"
 serviceSchema.pre('validate', async function(next) {
   try {
     if (this.category != null) {
@@ -30,7 +29,6 @@ serviceSchema.pre('validate', async function(next) {
   }
 });
 
-// Tạo index cho category để tối ưu truy vấn
 serviceSchema.index({ category: 1 });
 
 module.exports = mongoose.model('Service', serviceSchema);

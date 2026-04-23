@@ -4,7 +4,6 @@ import axios from 'axios';
 import './AiChatWindow.css';
 
 const AiChatWindow = ({ onClose }) => {
-  // ID=1 là câu chào mặc định, sẽ bị lọc bỏ khi gửi API
   const [messages, setMessages] = useState([
     { id: 1, text: 'Xin chào! Tôi là Trợ lý ảo Pethub. Tôi có thể giúp gì cho bạn hôm nay?', sender: 'ai' }
   ]);
@@ -26,7 +25,6 @@ const AiChatWindow = ({ onClose }) => {
 
     const userText = inputValue;
     
-    // 1. Hiển thị tin nhắn người dùng
     const newUserMsg = {
       id: Date.now(),
       text: userText,
@@ -38,8 +36,6 @@ const AiChatWindow = ({ onClose }) => {
     setIsLoading(true);
 
     try {
-      // --- FIX LỖI GOOGLE GEMINI: FIRST CONTENT MUST BE USER ---
-      // Lọc bỏ tin nhắn chào mừng (id=1) khỏi lịch sử gửi đi
       const validHistory = messages.filter(msg => msg.id !== 1);
       
       const historyForGemini = validHistory.slice(-10).map(msg => ({
@@ -47,20 +43,16 @@ const AiChatWindow = ({ onClose }) => {
         parts: [{ text: msg.text }]
       }));
 
-      // Đảm bảo tin nhắn đầu tiên trong lịch sử phải là 'user'. Nếu không phải (hoặc rỗng), gửi mảng rỗng.
       const finalHistory = (historyForGemini.length > 0 && historyForGemini[0].role === 'user') 
                            ? historyForGemini 
                            : [];
       
-      // ---------------------------------------------------------
 
-      // 3. GỌI API BACKEND
       const res = await axios.post('http://localhost:5000/api/ai/chat', {
         message: userText,
         history: finalHistory
       });
 
-      // 4. Hiển thị phản hồi từ AI
       const newAiMsg = {
         id: Date.now() + 1,
         text: res.data.reply,
@@ -83,7 +75,6 @@ const AiChatWindow = ({ onClose }) => {
 
   return (
     <div className="ai-chat-window">
-      {/* HEADER */}
       <div className="ai-chat-header">
         <div className="ai-header-info">
           <div className="ai-avatar-circle">
@@ -99,7 +90,6 @@ const AiChatWindow = ({ onClose }) => {
         </button>
       </div>
 
-      {/* BODY */}
       <div className="ai-chat-body">
         <div className="ai-chat-date">Hôm nay</div>
         
@@ -130,7 +120,6 @@ const AiChatWindow = ({ onClose }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* FOOTER */}
       <form className="ai-chat-footer" onSubmit={handleSendMessage}>
         <input 
           type="text" 

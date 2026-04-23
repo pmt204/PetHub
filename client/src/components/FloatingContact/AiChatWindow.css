@@ -1,7 +1,6 @@
-/* Container chính của khung chat */
 .ai-chat-window {
     position: fixed;
-    bottom: 100px; /* Nằm trên nút liên hệ */
+    bottom: 100px; 
     right: 30px;
     width: 350px;
     height: 450px;
@@ -22,7 +21,6 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- HEADER --- */
 .ai-chat-header {
     background: linear-gradient(135deg, #8B0000, #a00000);
     padding: 12px 16px;
@@ -56,7 +54,7 @@
 
 .ai-status {
     font-size: 11px;
-    color: #ffd700; /* Vàng */
+    color: #ffd700; 
 }
 
 .ai-close-btn {
@@ -72,7 +70,6 @@
     opacity: 1;
 }
 
-/* --- BODY --- */
 .ai-chat-body {
     flex: 1;
     background-color: #f5f7fb;
@@ -135,7 +132,6 @@
     box-shadow: 0 2px 4px rgba(139, 0, 0, 0.2);
 }
 
-/* --- FOOTER --- */
 .ai-chat-footer {
     padding: 10px;
     background-color: white;
@@ -178,9 +174,6 @@
     background-color: #a00000;
 }
 
-/* ... Code cũ giữ nguyên ... */
-
-/* --- HIỆU ỨNG TYPING INDICATOR --- */
 .typing-indicator {
     display: flex;
     gap: 4px;
@@ -207,7 +200,6 @@
     40% { transform: scale(1); }
 }
 
-/* Disabled state cho nút gửi khi đang load */
 .ai-send-btn:disabled, 
 .ai-chat-footer input:disabled {
     background-color: #ccc;

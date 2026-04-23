@@ -3,12 +3,8 @@ const crypto = require('crypto');
 const querystring = require('qs');
 const Booking = require('../models/Booking');
 
-// --------------------------------------------------------------------------
-// HÀM 1: TẠO URL THANH TOÁN
-// --------------------------------------------------------------------------
 exports.createPaymentUrl = (paymentData) => {
     
-    // 1. LẤY BIẾN MÔI TRƯỜNG VÀ DỮ LIỆU
     const vnp_TmnCode = process.env.VNP_TMNCODE;
     const vnp_HashSecret = process.env.VNP_HASHSECRET;
     const vnp_Url = process.env.VNP_URL;
@@ -17,12 +13,10 @@ exports.createPaymentUrl = (paymentData) => {
     const { amount, orderId, ipAddr } = paymentData;
     const createDate = moment(new Date()).format('YYYYMMDDHHmmss');
     
-    // Chuẩn hóa IPv6 localhost (::1) về IPv4 127.0.0.1
     const clientIp = (!ipAddr || typeof ipAddr !== 'string')
         ? '127.0.0.1'
         : (ipAddr.includes(':') ? '127.0.0.1' : ipAddr);
 
-    // 2. TẠO OBJETC CÁC THAM SỐ GỐC (RAW)
     let vnp_Params = {};
     vnp_Params['vnp_Version'] = '2.1.0';
     vnp_Params['vnp_Command'] = 'pay';
@@ -37,7 +31,6 @@ exports.createPaymentUrl = (paymentData) => {
     vnp_Params['vnp_IpAddr'] = clientIp;
     vnp_Params['vnp_CreateDate'] = createDate;
 
-    // 3. HÀM TẠO SIGN DATA THEO CHUẨN VNPAY: sort asc, encode value + thay %20 -> '+'
     const buildSignData = (obj) => {
         const keys = Object.keys(obj).sort();
         return keys.map(k => {
@@ -46,7 +39,6 @@ exports.createPaymentUrl = (paymentData) => {
         }).join('&');
     };
 
-    // 4. TẠO SIGNATURE
     const signData = buildSignData(vnp_Params);
     const hmac = crypto.createHmac("sha512", vnp_HashSecret);
     const vnp_SecureHash = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
@@ -56,14 +48,12 @@ exports.createPaymentUrl = (paymentData) => {
         console.log('[VNPay][create] hash =', vnp_SecureHash);
     }
 
-    // 5. TẠO URL THANH TOÁN (tham số chưa encode -> để qs encode)
     const paramsForUrl = { ...vnp_Params, vnp_SecureHash, vnp_SecureHashType: 'SHA512' };
     const paymentUrl = vnp_Url + '?' + querystring.stringify(paramsForUrl, { encode: true });
     
     return paymentUrl;
 };
 
-// Tạo URL thanh toán VNPay phục vụ test qua Postman (không cần tạo booking)
 exports.generatePaymentLink = async (req, res) => {
     try {
         const { amount, orderId } = req.body || {};
@@ -76,7 +66,6 @@ exports.generatePaymentLink = async (req, res) => {
                             (req.connection && req.connection.socket ? req.connection.socket.remoteAddress : null);
         const paymentUrl = exports.createPaymentUrl({ amount: Number(amount), orderId: String(orderId), ipAddr: ipAddress });
 
-        // Trả kèm debug để đối chiếu khi cần
         if (process.env.NODE_ENV !== 'production') {
             const debugParams = {
                 amount: Number(amount), orderId: String(orderId), ipAddr: ipAddress
@@ -90,9 +79,6 @@ exports.generatePaymentLink = async (req, res) => {
     }
 };
 
-// --------------------------------------------------------------------------
-// HÀM 2: XỬ LÝ KHI VNPAY TRẢ VỀ (vnpay_return)
-// --------------------------------------------------------------------------
 exports.vnpayReturn = async (req, res) => {
     let vnp_Params = req.query;
     const secureHash = vnp_Params['vnp_SecureHash'];
@@ -146,9 +132,6 @@ exports.vnpayReturn = async (req, res) => {
     res.redirect(redirectUrl);
 };
 
-// --------------------------------------------------------------------------
-// HÀM 3: XỬ LÝ IPN (LOGIC TƯƠNG TỰ HÀM 2)
-// --------------------------------------------------------------------------
 exports.vnpayIPN = async (req, res) => {
     try {
         let vnp_Params = req.query;

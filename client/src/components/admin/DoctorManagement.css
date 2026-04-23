@@ -1,8 +1,4 @@
-/* === QUẢN LÝ BÁC SĨ (Thiết kế lại) === */
-
-/* --- Tiêu đề và Nút Thêm Mới --- */
 .doctor-management {
-  /* Class này đã được đặt trong AdminLayout, chúng ta chỉ style phần con */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -10,58 +6,56 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem; /* Tăng khoảng cách */
+  margin-bottom: 2rem; 
 }
 
 .dm-header h1 {
-  font-size: 2rem; /* Tăng cỡ chữ tiêu đề */
+  font-size: 2rem; 
   font-weight: 700;
-  color: #1a202c; /* Màu đen đậm hơn */
+  color: #1a202c; 
 }
 
-/* Nút Thêm Bác sĩ (gradient) */
 .dm-btn-add {
   background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
   color: white;
   border: none;
-  padding: 0.8rem 1.5rem; /* Tăng padding */
-  border-radius: 0.5rem; /* Bo tròn vừa phải */
+  padding: 0.8rem 1.5rem; 
+  border-radius: 0.5rem;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); /* Đổ bóng */
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); 
 }
 
 .dm-btn-add:hover {
-  transform: translateY(-2px); /* Hiệu ứng nổi */
+  transform: translateY(-2px); 
   box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
 }
 
-/* --- Bảng (Table) --- */
 .dm-table-wrapper {
   background-color: #ffffff;
   
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* Bóng mượt hơn */
-  overflow: hidden; /* Quan trọng để giữ bo tròn */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); 
+  overflow: hidden;
 }
 
 .dm-table {
   width: 100%;
-  border-collapse: collapse; /* Gộp viền */
+  border-collapse: collapse; 
 }
 
 .dm-table th,
 .dm-table td {
-  padding: 1rem 1.25rem; /* Tăng padding cho thoáng */
+  padding: 1rem 1.25rem; 
   text-align: left;
-  border-bottom: 1px solid #e2e8f0; /* Viền xám nhạt */
+  border-bottom: 1px solid #e2e8f0; 
   vertical-align: middle;
 }
 
 .dm-table th {
-  background-color: #000000; /* Nền header bảng */
-  color: #fffdfd; /* Màu chữ header */
+  background-color: #000000; 
+  color: #fffdfd; 
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -69,11 +63,10 @@
 }
 
 .dm-table td {
-  color: #2d3748; /* Màu chữ nội dung */
+  color: #2d3748; 
   font-size: 0.9rem;
 }
 
-/* Tinh chỉnh cột đầu tiên (Ảnh) */
 .dm-table .doctor-image {
   width: 45px;
   height: 45px;
@@ -83,24 +76,23 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* --- Nút Sửa/Xóa trong bảng --- */
 .dm-actions {
   display: flex;
-  gap: 0.75rem; /* Tăng khoảng cách */
+  gap: 0.75rem; 
 }
 
 .dm-btn-edit,
 .dm-btn-delete {
   border: none;
-  padding: 0.6rem 0.9rem; /* Tăng padding */
+  padding: 0.6rem 0.9rem; 
   font-size: 0.875rem;
-  font-weight: 600; /* Đậm hơn */
+  font-weight: 600; 
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .dm-btn-edit {
-  background-color: #f79114; /* Vàng */
+  background-color: #f79114; 
   color: white;
 }
 .dm-btn-edit:hover {
@@ -109,7 +101,7 @@
 }
 
 .dm-btn-delete {
-  background-color: #8B0000; /* Đỏ */
+  background-color: #8B0000; 
   color: white;
 }
 .dm-btn-delete:hover {
@@ -117,27 +109,26 @@
   transform: scale(1.05);
 }
 
-/* --- Modal (Cửa sổ Pop-up) --- */
 .dm-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6); /* Tối hơn */
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(4px); /* Hiệu ứng mờ */
+  backdrop-filter: blur(4px); 
 }
 
 .dm-modal-content {
   background-color: white;
-  padding: 2rem; /* Tăng padding */
-  border-radius: 0.75rem; /* Bo tròn */
+  padding: 2rem; 
+  border-radius: 0.75rem; 
   width: 90%;
-  max-width: 650px; /* Rộng hơn 1 chút */
+  max-width: 650px; 
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -153,7 +144,7 @@
 }
 
 .dm-modal-header h2 {
-  font-size: 1.5rem; /* Cỡ chữ to rõ */
+  font-size: 1.5rem; 
   font-weight: 700;
   color: #1a202c;
 }
@@ -170,11 +161,10 @@
   color: #1a202c;
 }
 
-/* --- Form trong Modal --- */
 .dm-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem; /* Tăng khoảng cách giữa các input */
+  gap: 1.25rem; 
 }
 
 .dm-form-group {
@@ -189,13 +179,12 @@
   margin-bottom: 0.5rem;
 }
 
-/* Thiết kế lại Input và Textarea */
 .dm-form-group input,
 .dm-form-group textarea {
   width: 100%;
   padding: 0.8rem 1rem;
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem; /* Bo tròn */
+  border-radius: 0.5rem; 
   font-size: 0.9rem;
   transition: all 0.3s ease;
   box-sizing: border-box; 
@@ -204,8 +193,8 @@
 .dm-form-group input:focus,
 .dm-form-group textarea:focus {
   outline: none;
-  border-color: #2563eb; /* Viền xanh khi focus */
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); /* Hiệu ứng bóng */
+  border-color: #2563eb; 
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); 
 }
 
 .dm-form-group textarea {
@@ -213,7 +202,6 @@
   resize: vertical;
 }
 
-/* Nút Hủy và Lưu (trong form) */
 .dm-form-actions {
   display: flex;
   justify-content: flex-end;
@@ -235,7 +223,7 @@
 }
 
 .dm-btn-cancel {
-  background-color: #f3f4f6; /* Nền xám nhạt */
+  background-color: #f3f4f6; 
   color: #374151;
   border: 1px solid #d1d5db;
 }
@@ -254,14 +242,13 @@
   box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
 }
 
-/* --- Modal Xóa (Xác nhận) --- */
 .dm-delete-confirm {
   text-align: center;
   padding: 1rem;
 }
 .dm-delete-confirm h2 {
   font-size: 1.5rem;
-  color: #dc2626; /* Màu đỏ cảnh báo */
+  color: #dc2626; 
   margin-bottom: 1rem;
 }
 .dm-delete-confirm p {
@@ -277,9 +264,7 @@
 .dm-delete-confirm .dm-btn-delete:hover {
   background-color: #b91c1c;
 }
-/* --- CSS MỚI THÊM VÀO --- */
 
-/* Badge trạng thái */
 .status-badge {
     padding: 4px 10px;
     border-radius: 12px;
@@ -295,7 +280,6 @@
     color: #991b1b;
 }
 
-/* Layout Form Grid (Chia 2 cột) */
 .dm-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -311,7 +295,6 @@
     margin-top: 20px;
 }
 
-/* Checkbox List Dịch vụ */
 .services-checkbox-list {
     max-height: 200px;
     overflow-y: auto;
@@ -336,7 +319,6 @@
     font-size: 0.9rem;
 }
 
-/* Responsive cho mobile thì về 1 cột */
 @media (max-width: 768px) {
     .dm-form-grid {
         grid-template-columns: 1fr;

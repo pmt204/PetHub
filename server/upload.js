@@ -5,14 +5,14 @@ const fs = require('fs');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadPath = path.join(__dirname, 'public/images');
-    console.log('__dirname:', __dirname); // Debug
-    console.log('Upload path:', uploadPath); // Debug
-    fs.mkdirSync(uploadPath, { recursive: true }); // Tạo thư mục nếu chưa tồn tại
+    console.log('__dirname:', __dirname); 
+    console.log('Upload path:', uploadPath); 
+    fs.mkdirSync(uploadPath, { recursive: true }); 
     cb(null, uploadPath);
   },
   filename: function (req, file, cb) {
     const filename = Date.now() + '-' + file.originalname;
-    console.log('Saving file as:', filename); // Debug
+    console.log('Saving file as:', filename); 
     cb(null, filename);
   }
 });
@@ -29,7 +29,7 @@ const upload = multer({
       cb(new Error('Chỉ chấp nhận file ảnh (jpeg, jpg, png, gif)'));
     }
   },
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+  limits: { fileSize: 5 * 1024 * 1024 } 
 });
 
 module.exports = upload;

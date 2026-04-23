@@ -1,11 +1,10 @@
-// src/pages/BookingShipment.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import GoongMap from '../../components/map/GoongMap';
+import GoongMap from '../../components/Map/GoongMap';
 import './BookingShipment.css';
 
 const BookingShipment = () => {
@@ -15,11 +14,9 @@ const BookingShipment = () => {
   const [services, setServices] = useState([]);
   const [distanceInfo, setDistanceInfo] = useState(null);
 
-  // Gợi ý địa chỉ
   const [pickupSuggestions, setPickupSuggestions] = useState([]);
   const [dropoffSuggestions, setDropoffSuggestions] = useState([]);
 
-  // Ref để detect click ngoài
   const pickupRef = useRef(null);
   const dropoffRef = useRef(null);
 
@@ -33,7 +30,6 @@ const BookingShipment = () => {
     paymentMethod: 'cod'
   });
 
-  // Load pets + services
   useEffect(() => {
     const load = async () => {
       try {
@@ -47,7 +43,6 @@ const BookingShipment = () => {
         setPets(petRes.data);
         setServices(shipmentServices);
 
-        // Set mặc định
         if (shipmentServices.length > 0) setFormData(prev => ({ ...prev, serviceId: shipmentServices[0]._id }));
       } catch (err) {
         toast.error('Không tải được dữ liệu');
@@ -56,7 +51,6 @@ const BookingShipment = () => {
     load();
   }, []);
 
-  // Tính khoảng cách
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (formData.pickupAddress && formData.dropoffAddress) {
@@ -79,7 +73,6 @@ const BookingShipment = () => {
     return () => clearTimeout(timer);
   }, [formData.pickupAddress, formData.dropoffAddress]);
 
-  // Gợi ý địa chỉ
   const searchPlaces = async (input, setSuggestions) => {
     if (input.length < 2) return setSuggestions([]);
     try {
@@ -92,7 +85,6 @@ const BookingShipment = () => {
     }
   };
 
-  // Click ngoài để tắt gợi ý
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (pickupRef.current && !pickupRef.current.contains(e.target)) setPickupSuggestions([]);
@@ -136,18 +128,15 @@ const BookingShipment = () => {
       <Toaster position="top-center" />
       <div className="container py-5">
         
-        {/* ĐÃ CHỈNH SỬA: Thay thế class Bootstrap bằng class CSS đặc trưng */}
         <h2 className="text-center mb-5 title-shipment">Vận Chuyển Thú Cưng</h2>
 
         <div className="row g-5">
-          {/* FORM */}
           <div className="col-lg-7">
             <div className="card shadow-lg border-0">
               <div className="card-body p-5">
 
                 <form onSubmit={handleSubmit}>
 
-                  {/* CHỌN THÚ CƯNG */}
                   <div className="mb-4">
                     <label className="form-label fw-bold">Chọn thú cưng của bạn</label>
                     <select
@@ -165,7 +154,6 @@ const BookingShipment = () => {
                     </select>
                   </div>
 
-                  {/* CHỌN DỊCH VỤ */}
                   <div className="mb-4">
                     <label className="form-label fw-bold">Loại dịch vụ</label>
                     <select
@@ -182,7 +170,6 @@ const BookingShipment = () => {
                     </select>
                   </div>
 
-                  {/* NGÀY GIỜ ĐÓN */}
                   <div className="mb-4">
                     <label className="form-label fw-bold">Ngày giờ đón</label>
                     <DatePicker
@@ -199,7 +186,6 @@ const BookingShipment = () => {
                     />
                   </div>
 
-                  {/* ĐIỂM ĐÓN */}
                   <div className="mb-4 position-relative" ref={pickupRef}>
                     <label className="form-label fw-bold text-success">Điểm đón</label>
                     <input
@@ -231,7 +217,6 @@ const BookingShipment = () => {
                     )}
                   </div>
 
-                  {/* ĐIỂM TRẢ */}
                   <div className="mb-4 position-relative" ref={dropoffRef}>
                     <label className="form-label fw-bold text-danger">Điểm trả</label>
                     <input
@@ -263,7 +248,6 @@ const BookingShipment = () => {
                     )}
                   </div>
 
-                  {/* GHI CHÚ */}
                   <div className="mb-4">
                     <label className="form-label">Ghi chú cho tài xế (tùy chọn)</label>
                     <textarea
@@ -275,7 +259,6 @@ const BookingShipment = () => {
                     />
                   </div>
 
-                  {/* HIỂN THỊ GIÁ */}
                   {distanceInfo && selectedService && (
                     <div className="alert alert-success text-center p-5 rounded-4 mb-4 border border-success shadow">
                       <h4 className="mb-3 text-dark">
@@ -299,7 +282,6 @@ const BookingShipment = () => {
             </div>
           </div>
 
-          {/* BẢN ĐỒ */}
           <div className="col-lg-5">
             <div 
                 className="card shadow-lg border-0 sticky-top" 

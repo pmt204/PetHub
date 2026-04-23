@@ -1,20 +1,19 @@
 const Doctor = require('../models/Doctors'); 
 const Customer = require('../models/Customer');
 
-// 1. CREATE DOCTOR
 exports.createDoctor = async (req, res) => {
   try {
     const {
       name, specialty, experienceYears, image,
       description, fullDescription, 
-      services, // Lưu ý: Frontend phải gửi mảng ID dịch vụ, ví dụ: ["65a...", "65b..."]
-      status    // <--- [MỚI] Thêm status để set trạng thái ban đầu nếu cần
+      services, 
+      status    
     } = req.body;
 
     const doctor = new Doctor({
       name, specialty, experienceYears, image,
       description, fullDescription, services,
-      status: status || 'active' // Mặc định là active nếu không gửi
+      status: status || 'active' 
     });
 
     const createdDoctor = await doctor.save();
@@ -24,10 +23,8 @@ exports.createDoctor = async (req, res) => {
   }
 };
 
-// 2. GET ALL DOCTORS
 exports.getAllDoctors = async (req, res) => {
   try {
-    // Không populate services để Frontend lấy được ID so sánh trong BookingModal
     const doctors = await Doctor.find({});
     res.status(200).json(doctors);
   } catch (error) {
@@ -35,7 +32,6 @@ exports.getAllDoctors = async (req, res) => {
   }
 };
 
-// 3. GET DOCTOR BY ID
 exports.getDoctorById = async (req, res) => {
   try {
     const doctor = await Doctor.findById(req.params.id).populate('services', 'name');
@@ -49,14 +45,13 @@ exports.getDoctorById = async (req, res) => {
   }
 };
 
-// 4. UPDATE DOCTOR (QUAN TRỌNG: Đã thêm cập nhật status)
 exports.updateDoctor = async (req, res) => {
   try {
     const {
       name, specialty, experienceYears, image,
       description, fullDescription, 
-      services, // Frontend gửi mảng ID mới lên
-      status    // <--- [MỚI] Nhận status từ Admin (active/busy)
+      services, 
+      status    
     } = req.body;
 
     const doctor = await Doctor.findById(req.params.id);
@@ -69,10 +64,8 @@ exports.updateDoctor = async (req, res) => {
       doctor.description = description || doctor.description;
       doctor.fullDescription = fullDescription || doctor.fullDescription;
       
-      // Cập nhật mảng ID dịch vụ
       if (services) doctor.services = services;
 
-      // Cập nhật trạng thái (active/busy)
       if (status) doctor.status = status; 
 
       const updatedDoctor = await doctor.save();
@@ -85,7 +78,6 @@ exports.updateDoctor = async (req, res) => {
   }
 };
 
-// 5. DELETE DOCTOR
 exports.deleteDoctor = async (req, res) => {
   try {
     const doctor = await Doctor.findById(req.params.id);
@@ -100,7 +92,6 @@ exports.deleteDoctor = async (req, res) => {
   }
 };
 
-// 6. CREATE REVIEW
 exports.createDoctorReview = async (req, res) => {
   const { rating, comment } = req.body;
   const doctorId = req.params.id;

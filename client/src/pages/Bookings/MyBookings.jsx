@@ -88,7 +88,6 @@ const MyBookings = () => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
     };
 
-    // --- LOGIC TÍNH GIÁ CHI TIẾT ---
     const getBreakdown = (booking) => {
         const category = booking.serviceId?.category;
         const catId = typeof category === 'object' ? category?._id : String(category);
@@ -102,11 +101,9 @@ const MyBookings = () => {
         const isHotel = catId === '3' || Number(catId) === 3;
 
         if (isShipmentMain) {
-            // Vận chuyển chính: Giá = Đơn giá * Khoảng cách
             const distance = booking.shipmentDetails?.distance || 0;
             mainPrice = Math.round(unitPrice * distance);
         } else {
-            // Dịch vụ khác
             if (isHotel) {
                 const days = calculateDays(booking.checkIn, booking.checkOut);
                 mainPrice = unitPrice * days;
@@ -114,12 +111,10 @@ const MyBookings = () => {
                 mainPrice = unitPrice;
             }
 
-            // Dịch vụ phụ
             if (booking.subServices && booking.subServices.length > 0) {
                 subServicesPrice = booking.subServices.reduce((acc, sub) => acc + (sub.price || 0), 0);
             }
 
-            // Vận chuyển kèm theo (Tính ngược từ tổng)
             const currentTotal = booking.totalAmount || 0;
             const calculatedBase = mainPrice + subServicesPrice;
             if (currentTotal > calculatedBase) {
@@ -151,7 +146,6 @@ const MyBookings = () => {
     const handleOpenPayModal = (booking) => setPayingBooking(booking);
     const handleClosePayModal = () => { setPayingBooking(null); setPayLoading(false); };
 
-    // --- PAYMENT HANDLERS ---
     const handlePayWithVNPay = async () => {
         if (!payingBooking) return;
         try {
@@ -217,14 +211,12 @@ const MyBookings = () => {
                             const breakdown = getBreakdown(booking);
                             const isShipmentMain = breakdown.isShipmentMain;
                             
-                            // ĐIỀU KIỆN HIỂN THỊ VẬN CHUYỂN: Phải có distance > 0
                             const showShipment = booking.shipmentDetails && booking.shipmentDetails.distance > 0;
 
                             return (
                                 <div key={booking._id} className="col-12 col-md-6 col-lg-4">
                                     <div className="booking-card">
                                         <div className="card-body-custom">
-                                            {/* Header */}
                                             <div className="d-flex justify-content-between align-items-start mb-3">
                                                 <div>
                                                     <h5 className="service-title">{booking.serviceId?.name}</h5>
@@ -234,13 +226,11 @@ const MyBookings = () => {
                                             </div>
                                             <hr className="opacity-25" />
 
-                                            {/* 1. THÚ CƯNG (Luôn hiện) */}
                                             <div className="info-row">
                                                 <span className="info-label"><FaPaw className="me-1"/> Thú cưng:</span>
                                                 <span className="info-value">{booking.petId?.name}</span>
                                             </div>
 
-                                            {/* 2. THỜI GIAN (Xử lý chung cho cả Hotel & Shipment) */}
                                             {booking.checkIn ? (
                                                 <>
                                                     <div className="info-row">
@@ -259,7 +249,6 @@ const MyBookings = () => {
                                                 </div>
                                             )}
 
-                                            {/* 3. BÁC SĨ (Chỉ hiện nếu có và không phải Shipment chính) */}
                                             {booking.doctorId && !isShipmentMain && (
                                                 <div className="info-row">
                                                     <span className="info-label"><FaUserMd className="me-1"/> Bác sĩ:</span>
@@ -267,7 +256,6 @@ const MyBookings = () => {
                                                 </div>
                                             )}
 
-                                            {/* 4. DỊCH VỤ THÊM (Tooltip) */}
                                             {booking.subServices && booking.subServices.length > 0 && (
                                                 <div className="info-row align-items-center">
                                                     <span className="info-label">Dịch vụ thêm:</span>
@@ -288,12 +276,10 @@ const MyBookings = () => {
                                                 </div>
                                             )}
 
-                                            {/* 5. VẬN CHUYỂN (Chỉ hiện nếu distance > 0) */}
                                             {showShipment && (
                                                 <div className="info-row align-items-center">
                                                     <span className="info-label"><FaTruck className="me-1"/> Vận chuyển:</span>
                                                     <div className="d-flex align-items-center">
-                                                        {/* Hiển thị giống nhau cho cả Main & Sub */}
                                                         <span className="info-value">
                                                             Chi tiết {isShipmentMain ? '(Lộ trình)' : '(Đưa đón)'}
                                                         </span>
@@ -302,10 +288,8 @@ const MyBookings = () => {
                                                             <div className="custom-tooltip">
                                                                 <div className="tooltip-item"><strong>Đón:</strong> {booking.shipmentDetails.pickupAddress}</div>
                                                                 <div className="tooltip-item"><strong>Trả:</strong> {booking.shipmentDetails.dropoffAddress}</div>
-                                                                {/* Đã thêm hiển thị khoảng cách vào đây */}
                                                                 <div className="tooltip-item"><strong>Khoảng cách:</strong> {booking.shipmentDetails.distance} km</div>
                                                                 
-                                                                {/* Công thức tính tiền (Hiển thị khác nhau tùy loại) */}
                                                                 <div className="tooltip-item text-warning border-top pt-2 mt-1">
                                                                     {isShipmentMain ? (
                                                                          <span><strong>Phí:</strong> {booking.shipmentDetails.distance} km x {formatCurrency(breakdown.unitPrice)} = {formatCurrency(breakdown.mainPrice)}</span>
@@ -319,28 +303,23 @@ const MyBookings = () => {
                                                 </div>
                                             )}
 
-                                            {/* --- TỔNG THANH TOÁN (TOOLTIP INFO) --- */}
                                             <div className="total-amount-section">
                                                 <div className="d-flex align-items-center">
                                                     <span className="total-label">Tổng thanh toán:</span>
                                                     
-                                                    {/* Tooltip Chi tiết giá */}
                                                     <div className="tooltip-wrapper ms-2">
                                                         <FaInfoCircle className="eye-icon" style={{color: '#6c757d', fontSize: '1rem'}} />
                                                         <div className="custom-tooltip" style={{width: '280px'}}>
                                                             
-                                                            {/* Dòng 1: Giá dịch vụ chính */}
                                                             <div className="tooltip-item">
                                                                 <span>
                                                                     {isShipmentMain ? 'Phí vận chuyển' : 'Dịch vụ chính'} 
-                                                                    {/* Nếu là KS hiện số ngày, nếu là Vận chuyển hiện số KM */}
                                                                     {breakdown.isHotel && ` (${calculateDays(booking.checkIn, booking.checkOut)} ngày)`}
                                                                     {isShipmentMain && ` (${booking.shipmentDetails?.distance} km)`}
                                                                 </span>
                                                                 <strong>{formatCurrency(breakdown.mainPrice)}</strong>
                                                             </div>
 
-                                                            {/* Dòng 2: Phụ phí (nếu có) */}
                                                             {breakdown.subServicesPrice > 0 && (
                                                                 <div className="tooltip-item">
                                                                     <span>Dịch vụ thêm</span>
@@ -348,7 +327,6 @@ const MyBookings = () => {
                                                                 </div>
                                                             )}
 
-                                                            {/* Dòng 3: Phí ship kèm theo (chỉ hiện nếu KHÔNG phải dịch vụ vận chuyển chính) */}
                                                             {!isShipmentMain && breakdown.shipmentPrice > 0 && (
                                                                 <div className="tooltip-item">
                                                                     <span>Phí đưa đón</span>
@@ -375,7 +353,6 @@ const MyBookings = () => {
                                                 )}
                                             </div>
 
-                                            {/* Buttons */}
                                             {booking.paymentStatus !== 'success' && booking.status !== 'completed' && (
                                                 <div className="action-buttons">
                                                     <button className="btn btn-cancel w-50" onClick={() => handleCancelBooking(booking._id)}>Hủy</button>
@@ -395,7 +372,6 @@ const MyBookings = () => {
                     </div>
                 )}
                 
-                {/* --- MODAL THANH TOÁN --- */}
                 {payingBooking && (
                     <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
                         <div className="modal-dialog modal-dialog-centered">

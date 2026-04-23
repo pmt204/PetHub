@@ -1,4 +1,3 @@
-// customerModel.js
 const mongoose = require('mongoose');
 
 const CustomerSchema = new mongoose.Schema({

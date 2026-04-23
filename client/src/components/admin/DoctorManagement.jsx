@@ -4,11 +4,9 @@ import "./DoctorManagement.css";
 
 const DoctorManagement = () => {
   const [doctors, setDoctors] = useState([]);
-  const [servicesList, setServicesList] = useState([]); // [MỚI] Danh sách tất cả dịch vụ để chọn
+  const [servicesList, setServicesList] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // State cho Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentDoctor, setCurrentDoctor] = useState(null); 
@@ -20,8 +18,8 @@ const DoctorManagement = () => {
     image: "",
     description: "",
     fullDescription: "",
-    status: "active", // [MỚI] Mặc định là active
-    services: [],     // [MỚI] Mảng chứa ID các dịch vụ được chọn
+    status: "active", 
+    services: [],     
   });
 
   const getToken = () => {
@@ -31,14 +29,12 @@ const DoctorManagement = () => {
     return null;
   };
   
-  // 1. Fetch Bác sĩ & Dịch vụ
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Gọi song song 2 API để lấy data
       const [doctorsRes, servicesRes] = await Promise.all([
         axios.get("http://localhost:5000/api/doctors"),
-        axios.get("http://localhost:5000/api/services") // Giả định bạn có API này lấy all services
+        axios.get("http://localhost:5000/api/services") 
       ]);
 
       setDoctors(doctorsRes.data);
@@ -56,27 +52,22 @@ const DoctorManagement = () => {
     fetchData();
   }, []);
 
-  // Xử lý thay đổi Input thường
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // [MỚI] Xử lý chọn Dịch vụ (Checkbox)
   const handleServiceChange = (serviceId) => {
     setFormData((prev) => {
       const isSelected = prev.services.includes(serviceId);
       if (isSelected) {
-        // Nếu đã chọn -> Bỏ chọn
         return { ...prev, services: prev.services.filter(id => id !== serviceId) };
       } else {
-        // Nếu chưa chọn -> Thêm vào
         return { ...prev, services: [...prev.services, serviceId] };
       }
     });
   };
 
-  // Mở modal (Thêm mới)
   const handleAdd = () => {
     setCurrentDoctor(null);
     setFormData({
@@ -92,19 +83,16 @@ const DoctorManagement = () => {
     setIsModalOpen(true);
   };
 
-  // Mở modal (Chỉnh sửa)
   const handleEdit = (doctor) => {
     setCurrentDoctor(doctor);
     setFormData({
       ...doctor,
-      // services trong doctor là mảng ID (do backend trả về), giữ nguyên để map vào checkbox
       services: doctor.services || [], 
       status: doctor.status || "active"
     });
     setIsModalOpen(true);
   };
 
-  // Xử lý lưu
   const handleSave = async (e) => {
     e.preventDefault();
     const token = getToken();
@@ -117,11 +105,9 @@ const DoctorManagement = () => {
       },
     };
 
-    // Chuẩn hóa dữ liệu trước khi gửi
     const dataToSave = {
       ...formData,
       experienceYears: Number(formData.experienceYears),
-      // services đã là mảng ID, không cần split nữa
     };
 
     try {
@@ -130,14 +116,13 @@ const DoctorManagement = () => {
       } else {
         await axios.post("http://localhost:5000/api/admin/doctors", dataToSave, config);
       }
-      fetchData(); // Tải lại danh sách
+      fetchData(); 
       setIsModalOpen(false);
     } catch (err) {
       alert("Lỗi khi lưu: " + (err.response?.data?.message || err.message));
     }
   };
 
-  // Xử lý xóa (Giữ nguyên)
   const handleDelete = (doctor) => {
     setCurrentDoctor(doctor);
     setIsDeleteModalOpen(true);
@@ -175,8 +160,8 @@ const DoctorManagement = () => {
               <th>Ảnh</th>
               <th>Tên</th>
               <th>Chuyên khoa</th>
-              <th>Trạng thái</th> {/* [MỚI] Cột trạng thái */}
-              <th>Dịch vụ</th>    {/* [MỚI] Cột dịch vụ */}
+              <th>Trạng thái</th> 
+              <th>Dịch vụ</th>    
               <th>Hành động</th>
             </tr>
           </thead>
@@ -197,14 +182,12 @@ const DoctorManagement = () => {
                 </td>
                 <td>{doc.specialty}</td>
                 
-                {/* [MỚI] Hiển thị Status */}
                 <td>
                     <span className={`status-badge ${doc.status === 'busy' ? 'status-busy' : 'status-active'}`}>
                         {doc.status === 'busy' ? 'Bận' : 'Hoạt động'}
                     </span>
                 </td>
 
-                {/* [MỚI] Hiển thị số lượng dịch vụ */}
                 <td>
                     <span className="service-count badge bg-info">
                         {doc.services?.length || 0} dịch vụ
@@ -221,7 +204,6 @@ const DoctorManagement = () => {
         </table>
       </div>
 
-      {/* Modal Thêm/Sửa */}
       {isModalOpen && (
         <div className="dm-modal-overlay">
           <div className="dm-modal-content" style={{maxWidth: '800px'}}>
@@ -231,7 +213,6 @@ const DoctorManagement = () => {
             </div>
             
             <form onSubmit={handleSave} className="dm-form-grid">
-              {/* Cột Trái: Thông tin cơ bản */}
               <div className="dm-col">
                   <div className="dm-form-group">
                     <label>Tên Bác sĩ</label>
@@ -242,7 +223,6 @@ const DoctorManagement = () => {
                     <input type="text" name="specialty" value={formData.specialty} onChange={handleChange} required />
                   </div>
                   
-                  {/* [MỚI] Chọn Trạng thái */}
                   <div className="dm-form-group">
                     <label>Trạng thái làm việc</label>
                     <select name="status" value={formData.status} onChange={handleChange} className="dm-select">
@@ -261,9 +241,7 @@ const DoctorManagement = () => {
                   </div>
               </div>
 
-              {/* Cột Phải: Dịch vụ & Mô tả */}
               <div className="dm-col">
-                  {/* [MỚI] Chọn Dịch vụ bằng Checkbox */}
                   <div className="dm-form-group">
                     <label>Dịch vụ đảm nhận</label>
                     <div className="services-checkbox-list">
@@ -304,7 +282,6 @@ const DoctorManagement = () => {
         </div>
       )}
 
-      {/* Modal Xóa (Giữ nguyên) */}
       {isDeleteModalOpen && (
         <div className="dm-modal-overlay">
           <div className="dm-modal-content dm-delete-confirm">

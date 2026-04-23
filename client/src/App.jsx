@@ -1,16 +1,16 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import Layout from './layouts/Layout';
-import AdminLayout from './components/admin/AdminLayout';
-import AdminDashboard from './components/admin/AdminDashboard';
-import ServiceManagement from './components/admin/ServiceManagement';
-import NewsManagement from './components/admin/NewsManagement';
-import UserManagement from './components/admin/UserManagement';
-import CategoryServiceManagement from './components//admin/CategoryServiceManagement';
-import CustomerManagement from './components/admin/CustomerManagement';
-import BookingManagement from './components/admin/BookingManagement';
-import DoctorManagement from './components/admin/DoctorManagement';
-import CustomerDetail from './components/admin/CustomerDetail';
+import AdminLayout from './components/Admin/AdminLayout';
+import AdminDashboard from './components/Admin/AdminDashboard';
+import ServiceManagement from './components/Admin/ServiceManagement';
+import NewsManagement from './components/Admin/NewsManagement';
+import UserManagement from './components/Admin/UserManagement';
+import CategoryServiceManagement from './components/Admin/CategoryServiceManagement';
+import CustomerManagement from './components/Admin/CustomerManagement';
+import BookingManagement from './components/Admin/BookingManagement';
+import DoctorManagement from './components/Admin/DoctorManagement';
+import CustomerDetail from './components/Admin/CustomerDetail';
 import Home from './pages/Home/Home';
 import About from './pages/About/About';
 import News from './pages/News/News';
@@ -33,12 +33,10 @@ import DoctorDetail from './pages/Doctors/DoctorDetail';
 import Doctor from './pages/Doctors/DoctorPage';
 import PetProfile from './pages/Profiles/PetProfile';
 
-// Component trung gian để chọn đúng trang chi tiết dựa trên category ID
 const CategoryServiceDetail = () => {
   const { id } = useParams(); 
   const categoryId = parseInt(id, 10);
 
-  // Chọn component dựa trên categoryId
   switch (categoryId) {
     case 1:
       return <ServiceHealthDetail />;
@@ -74,7 +72,6 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Routes sử dụng Layout (cho người dùng thông thường) */}
         <Route path="booking-result" element={<BookingResult />} />
         <Route path="payment-result" element={<PaymentResult />} />
         <Route path="/" element={<Layout />}>
@@ -82,7 +79,7 @@ function App() {
           <Route path="home" element={<Home />} />
           <Route path="about" element={<About />} />
           <Route path="services" element={<Services />} />
-          <Route path="categoryservices/:id" element={<CategoryServiceDetail />} /> {/* Tất cả danh mục dùng Layout */}
+          <Route path="categoryservices/:id" element={<CategoryServiceDetail />} /> 
           <Route path="news" element={<News />} />
           <Route path="news/:id" element={<NewsDetail />} />
           <Route path="account" element={<Account />} />
@@ -109,7 +106,6 @@ function App() {
           />
         </Route>
         
-        {/* Routes cho admin */}
         <Route
           path="/admin/*"
           element={
@@ -130,7 +126,6 @@ function App() {
           <Route path="doctors" element={<DoctorManagement />} />
         </Route>
 
-        {/* Routes cho đăng nhập và đăng ký */}
         <Route
           path="/login"
           element={

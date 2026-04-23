@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 const NewsManagement = () => {
-  // Danh sách topic cố định
   const topics = ['Sức khỏe', 'Góc nhìn chuyên gia', 'Chăm sóc thú cưng', 'Câu chuyện'];
 
   const [news, setNews] = useState([]);
@@ -42,7 +41,7 @@ const NewsManagement = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Không tìm thấy token, vui lòng đăng nhập');
-      console.log('Token:', token); // Debug token
+      console.log('Token:', token); 
 
       const formData = new FormData();
       formData.append('image', file);
@@ -60,7 +59,7 @@ const NewsManagement = () => {
       }
 
       const data = await response.json();
-      return data.image; // Tên file
+      return data.image; 
     } catch (error) {
       console.error('Error uploading image:', error);
       throw error;
@@ -271,7 +270,6 @@ const NewsManagement = () => {
         </tbody>
       </table>
 
-      {/* Modal Thêm Tin Tức */}
       <div className={`modal fade ${showAddModal ? 'show' : ''}`} style={{ display: showAddModal ? 'block' : 'none' }}>
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
@@ -317,17 +315,6 @@ const NewsManagement = () => {
                     ))}
                   </select>
                 </div>
-                {/* <div className="mb-3">
-                  <label htmlFor="date" className="form-label">Ngày Đăng (Tùy chọn)</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    id="date"
-                    value={newNews.date ? newNews.date.split('T')[0] : ''}
-                    onChange={(e) => setNewNews({ ...newNews, date: e.target.value })}
-                    placeholder="Chọn ngày đăng (nếu muốn thay đổi)"
-                  />
-                </div> */}
                 <div className="mb-3">
                   <label htmlFor="content" className="form-label">Nội Dung</label>
                   <textarea
@@ -385,7 +372,6 @@ const NewsManagement = () => {
       </div>
       {showAddModal && <div className="modal-backdrop fade show" />}
 
-      {/* Modal Sửa Tin Tức */}
       <div className={`modal fade ${showEditModal ? 'show' : ''}`} style={{ display: showEditModal ? 'block' : 'none' }}>
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">

@@ -28,8 +28,6 @@ const DoctorDetail = () => {
         }
         return `http://localhost:5000/api/images/${imagePath}`;
     };
-    // ===================================
-
 
     useEffect(() => {
         const checkUserInfo = () => {
@@ -142,8 +140,6 @@ const DoctorDetail = () => {
     return (
         <div className="detail-container">
             <div className="detail-card">
-
-                {/* Phần hiển thị header bác sĩ */}
                 <div className="detail-header">
                     <img
                         src={getImageUrl(doctor.image)}
@@ -154,13 +150,9 @@ const DoctorDetail = () => {
                     <div className="detail-info">
                         <h1>{doctor.name}</h1>
                         <p className="specialty-badge">💼 {doctor.specialty}</p>
-                        {/* <div className="rating-badge">
-                            ⭐ {doctor.rating.toFixed(1)} / 5.0 ({doctor.numReviews} đánh giá)
-                        </div> */}
                     </div>
                 </div>
 
-                {/* Phần body chi tiết */}
                 <div className="detail-body">
                     <div className="info-section">
                         <h2>Thông tin chuyên môn</h2>
@@ -214,7 +206,6 @@ const DoctorDetail = () => {
                         Đặt lịch
                     </button>
 
-                    {/* === PHẦN REVIEW === */}
                     <div className="info-section reviews-section">
                         <h2> Đánh giá ({doctor.numReviews})</h2>
                         <div className="reviews-list">
@@ -232,7 +223,6 @@ const DoctorDetail = () => {
                         </div>
                     </div>
 
-                    {/* 2. Form viết review */}
                     <div className="info-section review-form-section">
                         <h2>Viết đánh giá của bạn</h2>
 

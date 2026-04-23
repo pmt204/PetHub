@@ -38,7 +38,6 @@ const Login = () => {
 
       if (response.ok) {
         setTimeout(() => {
-          // Bỏ setUser vì không cần thiết, thông tin đã được lưu vào localStorage
           localStorage.setItem('user', JSON.stringify(data.user));
           localStorage.setItem('token', data.token);
           navigate('/');

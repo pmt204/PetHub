@@ -3,12 +3,8 @@ const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const Booking = require('../models/Booking');
 
-// --------------------------------------------------------------------------
-// HÀM 1: TẠO URL THANH TOÁN (GỬI CHO MOMO)
-// --------------------------------------------------------------------------
 exports.createMoMoPayment = async (paymentData) => {
 
-  // 1. LẤY BIẾN MÔI TRƯỜNG VÀ DỮ LIỆU
   const partnerCode = process.env.MOMO_PARTNER_CODE;
   const accessKey = process.env.MOMO_ACCESS_KEY;
   const secretKey = process.env.MOMO_SECRET_KEY;
@@ -22,15 +18,12 @@ exports.createMoMoPayment = async (paymentData) => {
 
   const { amount, bookingId } = paymentData;
   
-  // 2. CHUẨN BỊ DỮ LIỆU GỐC (RAW)
   const orderInfo = `Thanh toan dat lich ${bookingId}`;
   const requestId = uuidv4(); 
   const orderId = `${bookingId}:${requestId}`; 
     const requestType = "payWithATM";
   const extraData = ""; 
 
-    // --- [SỬA LỖI] BẮT BUỘC SẮP XẾP A-B VÀ THÊM requestType ---
-  // 3. TẠO CHUỖI ĐỂ HASH (rawSignature)
   const rawSignature = 
         `accessKey=${accessKey}` +
         `&amount=${amount}` +
@@ -41,14 +34,11 @@ exports.createMoMoPayment = async (paymentData) => {
         `&partnerCode=${partnerCode}` +
     `&redirectUrl=${redirectUrl}` +
     `&requestId=${requestId}` +
-    `&requestType=${requestType}`; // <-- Lỗi 2: Thiếu trường này
-        // --- [KẾT THÚC SỬA LỖI] ---
+    `&requestType=${requestType}`; 
 
-  // 4. TẠO CHỮ KÝ (signature)
-  const hmac = crypto.createHmac('sha256', secretKey); // Sửa: Dùng secretKey
+  const hmac = crypto.createHmac('sha256', secretKey); 
   const signature = hmac.update(rawSignature).digest('hex');
 
-  // 5. TẠO BODY GỬI ĐẾN MOMO
   const requestBody = {
     partnerCode,
     accessKey,
@@ -56,19 +46,17 @@ exports.createMoMoPayment = async (paymentData) => {
     amount: amount.toString(),
     orderId,
     orderInfo,
-    redirectUrl, // Sửa: tên biến là redirectUrl
-    ipnUrl, // Sửa: tên biến là ipnUrl
+    redirectUrl, 
+    ipnUrl, 
     extraData,
     requestType,
     signature,
     lang: 'vi'
   };
 
-  // 6. GỌI API MOMO
   try {
     const response = await axios.post(apiEndpoint, requestBody);
     
-        // MoMo trả về lỗi trong body
         if (response.data.resultCode !== 0) {
             console.error("MoMo trả về lỗi:", response.data.message);
             throw new Error(response.data.message);
@@ -77,17 +65,12 @@ exports.createMoMoPayment = async (paymentData) => {
     return response.data.payUrl; 
     
   } catch (error) {
-    // Ghi log lỗi từ MoMo (nếu có)
     console.error("Lỗi khi gọi API MoMo:", error.response ? error.response.data : error.message);
     throw new Error(error.response?.data?.message || "Không thể tạo thanh toán MoMo.");
   }
 };
 
-// --------------------------------------------------------------------------
-// HÀM 1B: API tạo link thanh toán cho booking hiện có (POST /create)
-// --------------------------------------------------------------------------
 exports.createMoMoPaymentLink = async (req, res) => {
-    // ... (Hàm này của sếp đã TỐT, giữ nguyên logic) ...
   try {
     const { amount, bookingId } = req.body;
     if (!bookingId || !amount) {
@@ -112,20 +95,14 @@ exports.createMoMoPaymentLink = async (req, res) => {
  }
 };
 
-// --------------------------------------------------------------------------
-// HÀM 2: XỬ LÝ KHI MOMO TRẢ VỀ (momo_return - GET)
-// --------------------------------------------------------------------------
 exports.momoReturn = async (req, res) => {
-  const secretKey = process.env.MOMO_SECRET_KEY; // Sửa: dùng secretKey
+  const secretKey = process.env.MOMO_SECRET_KEY; 
   const clientUrl = process.env.CLIENT_URL;
   const accessKey = process.env.MOMO_ACCESS_KEY;
 
   const queryParams = req.query;
   const signature = queryParams.signature;
 
-    // --- [SỬA LỖI] BẮT BUỘC SẮP XẾP A-B ---
-    // 2. TẠO CHUỖI ĐỂ HASH (rawSignature)
-    // Các trường VNPAY trả về (theo docs)
   const rawSignature = 
         `accessKey=${accessKey}` +
         `&amount=${queryParams.amount}` +
@@ -138,18 +115,15 @@ exports.momoReturn = async (req, res) => {
     `&payType=${queryParams.payType}` +
     `&requestId=${queryParams.requestId}` +
     `&responseTime=${queryParams.responseTime}` +
-        `&resultCode=${queryParams.resultCode}` + // Sửa: resultCode
+        `&resultCode=${queryParams.resultCode}` + 
     `&transId=${queryParams.transId}`;
-    // --- [KẾT THÚC SỬA LỖI] ---
 
-  // 3. TẠO CHỮ KÝ ĐỂ SO SÁNH
-  const hmac = crypto.createHmac('sha256', secretKey); // Sửa: dùng secretKey
+  const hmac = crypto.createHmac('sha256', secretKey); 
   const signed = hmac.update(rawSignature).digest('hex');
 
   const bookingId = queryParams.orderId.split(':')[0]; 
   let redirectUrl = `${clientUrl}/payment-result?orderId=${bookingId}`;
 
-  // 5. XÁC THỰC VÀ CẬP NHẬT
   if (signature === signed) {
     if (queryParams.resultCode == '0') {
       console.log(`(MoMo Return) Giao dịch ${bookingId} thành công.`);
@@ -173,22 +147,16 @@ exports.momoReturn = async (req, res) => {
     redirectUrl += '&success=false&message=Invalid signature';
   }
   
-  // 6. Redirect người dùng về React
   res.redirect(redirectUrl);
 };
 
-// --------------------------------------------------------------------------
-// HÀM 3: XỬ LÝ IPN (momo_notify - POST)
-// --------------------------------------------------------------------------
 exports.momoNotify = async (req, res) => {
   
-  const secretKey = process.env.MOMO_SECRET_KEY; // Sửa: dùng secretKey
+  const secretKey = process.env.MOMO_SECRET_KEY; 
   const accessKey = process.env.MOMO_ACCESS_KEY;
   const bodyParams = req.body;
   const signature = bodyParams.signature;
 
-    // --- [SỬA LỖI] BẮT BUỘC SẮP XẾP A-B ---
-    // TẠO CHUỖI ĐỂ HASH (rawSignature)
   const rawSignature = 
         `accessKey=${accessKey}` +
         `&amount=${bodyParams.amount}` +
@@ -201,15 +169,13 @@ exports.momoNotify = async (req, res) => {
     `&payType=${bodyParams.payType}` +
     `&requestId=${bodyParams.requestId}` +
     `&responseTime=${bodyParams.responseTime}` +
-        `&resultCode=${bodyParams.resultCode}` + // Sửa: resultCode
+        `&resultCode=${bodyParams.resultCode}` + 
     `&transId=${bodyParams.transId}`;
-    // --- [KẾT THÚC SỬA LỖI] ---
 
-  // TẠO CHỮ KÝ ĐỂ SO SÁNH
-  const hmac = crypto.createHmac('sha256', secretKey); // Sửa: dùng secretKey
+  const hmac = crypto.createHmac('sha256', secretKey); 
   const signed = hmac.update(rawSignature).digest('hex');
 
-  const bookingId = bodyParams.orderId.split(':')[0]; // Lấy lại bookingId gốc
+  const bookingId = bodyParams.orderId.split(':')[0]; 
 
   if (signature === signed) {
     try {
@@ -223,14 +189,13 @@ exports.momoNotify = async (req, res) => {
           console.log(`(MoMo IPN) Cập nhật ${bookingId} thất bại.`);
         }
       }
-      // Phản hồi 204 cho MoMo biết đã nhận
       res.status(204).send();
     } catch (error) {
       console.error('Lỗi CSDL (MoMo IPN):', error);
-      res.status(500).send(); // Báo lỗi 500 để MoMo thử lại
+      res.status(500).send(); 
     }
   } else {
     console.log('Chữ ký MoMo không hợp lệ (IPN).');
-    res.status(400).send(); // Báo lỗi 400 (Bad Request)
+    res.status(400).send(); 
   }
 };

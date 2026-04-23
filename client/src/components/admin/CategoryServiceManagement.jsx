@@ -57,7 +57,7 @@ const CategoryServiceManagement = () => {
       }
 
       const data = await response.json();
-      return data.image; // Tên file
+      return data.image; 
     } catch (error) {
       console.error('Error uploading image:', error);
       throw error;

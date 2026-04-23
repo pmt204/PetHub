@@ -1,6 +1,3 @@
-/* MyPets.css */
-
-/* --- Card Style --- */
 .pet-card {
   transition: all 0.3s ease-in-out;
   border-radius: 20px;
@@ -14,7 +11,6 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* --- Icon Wrapper --- */
 .pet-icon-wrapper {
   width: 80px;
   height: 80px;
@@ -29,7 +25,6 @@
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-/* --- Tắt hiệu ứng bóng (Glow) mặc định của Bootstrap --- */
 .btn:focus, 
 .btn:active, 
 .form-control:focus, 
@@ -45,10 +40,9 @@
 .form-card {
   border-radius: 20px;
   background-color: #ffffff;
-  border-left: 5px solid #8B0000; /* Viền đỏ đô */
+  border-left: 5px solid #8B0000; 
 }
 
-/* --- [MỚI] NÚT ĐỎ ĐÔ (Dùng cho "Thêm mới", "Lưu") --- */
 .btn-red-primary {
   background-color: #8B0000;
   border-color: #8B0000;
@@ -62,14 +56,13 @@
   color: white;
 }
 
-/* --- [MỚI] NÚT OUTLINE ĐỎ ĐÔ (Dùng cho "Xem hồ sơ") --- */
 .btn-outline-red {
   color: #8B0000;
-  border: 2px solid #8B0000; /* Viền đỏ dày hơn chút cho rõ */
+  border: 2px solid #8B0000; 
   background-color: transparent;
   font-weight: 700;
   transition: all 0.2s ease-in-out;
-  box-shadow: none !important; /* Tắt bóng tuyệt đối */
+  box-shadow: none !important; 
 }
 
 .btn-outline-red:hover,
@@ -78,6 +71,6 @@
   background-color: #8B0000;
   color: white;
   border-color: #8B0000;
-  box-shadow: none !important; /* Vẫn tắt bóng khi hover */
+  box-shadow: none !important; 
   outline: none !important;
 }

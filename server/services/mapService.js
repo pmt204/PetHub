@@ -1,4 +1,3 @@
-// services/mapservice.js – FIX 100% CHO GOONG 2025 (BỎ QUA FIELD STATUS)
 require('dotenv').config();
 const axios = require('axios');
 
@@ -43,7 +42,6 @@ const calculateDistance = async (origin, destination) => {
       timeout: 10000
     });
 
-    // FIX CHÍNH Ở ĐÂY: Goong KHÔNG TRẢ status, chỉ cần có rows + elements là OK
     const rows = response.data?.rows;
     if (!rows || rows.length === 0) {
       throw new Error('No rows');
@@ -54,18 +52,16 @@ const calculateDistance = async (origin, destination) => {
       throw new Error('No distance data');
     }
 
-    // DỮ LIỆU CÓ THẬT – TRẢ VỀ NGAY!
     return {
-      distanceText: element.distance.text,      // "8.2 km"
-      distanceValue: element.distance.value,    // 8200
-      durationText: element.duration.text,      // "20 phút"
-      durationValue: element.duration.value     // giây
+      distanceText: element.distance.text,      
+      distanceValue: element.distance.value,    
+      durationText: element.duration.text,      
+      durationValue: element.duration.value     
     };
 
   } catch (error) {
     console.error("Goong fallback:", error.message);
 
-    // Fallback nhẹ nhàng
     const fakeKm = (Math.random() * 10 + 5).toFixed(1);
     return {
       distanceText: `${fakeKm} km (dự đoán)`,

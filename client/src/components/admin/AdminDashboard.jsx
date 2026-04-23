@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-import moment from 'moment'; // Cần cài đặt: npm install moment
+import moment from 'moment'; 
 import { 
   FaBoxOpen, FaNewspaper, FaClipboardList, FaUsers, FaMoneyBillWave, 
   FaFileExcel, FaCalendarAlt, FaSearch,
@@ -47,7 +47,6 @@ const AdminDashboard = () => {
           totalBookings: data.totalBookings || 0,
           totalCustomers: data.totalCustomers || 0,
           totalRevenue: data.totalRevenue || 0,
-          // Đảm bảo revenueDetails là mảng các booking
           revenueDetails: Array.isArray(data.revenueDetails) ? data.revenueDetails : []
         });
         setError('');
@@ -61,24 +60,19 @@ const AdminDashboard = () => {
     fetchData();
   }, [startDate, endDate]);
 
-  // --- FORMAT TIỀN TỆ ---
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
   };
 
-  // --- XUẤT EXCEL CHI TIẾT ---
   const exportToExcel = () => {
     const dataToExport = stats.revenueDetails.map(booking => {
-      // Xây dựng chuỗi diễn giải chi tiết cho Excel
       let details = `Dịch vụ: ${booking.serviceId?.name || 'Đã xóa'}`;
       
-      // Thêm thông tin dịch vụ phụ
       if (booking.subServices && booking.subServices.length > 0) {
         const subNames = booking.subServices.map(s => `${s.name} (${s.price})`).join(', ');
         details += ` | Phụ phí: ${subNames}`;
       }
       
-      // Thêm thông tin vận chuyển
       if (booking.shipmentDetails && booking.shipmentDetails.distance > 0) {
         details += ` | Vận chuyển: ${booking.shipmentDetails.distance}km`;
         if(booking.shipmentDetails.price) {
@@ -98,14 +92,13 @@ const AdminDashboard = () => {
 
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     
-    // Chỉnh độ rộng cột Excel cho dễ nhìn
     ws['!cols'] = [
-        { wch: 20 }, // Ngày
-        { wch: 10 }, // Mã đơn
-        { wch: 20 }, // Khách hàng
-        { wch: 15 }, // SĐT
-        { wch: 60 }, // Diễn giải (Rộng nhất)
-        { wch: 15 }  // Tổng tiền
+        { wch: 20 }, 
+        { wch: 10 }, 
+        { wch: 20 }, 
+        { wch: 15 }, 
+        { wch: 60 }, 
+        { wch: 15 }  
     ];
     
     const wb = XLSX.utils.book_new();
@@ -126,7 +119,6 @@ const AdminDashboard = () => {
     <div className="admin-dashboard-container">
       <h2 className="dashboard-title">Dashboard Quản Trị</h2>
 
-      {/* --- PHẦN 1: THỐNG KÊ TỔNG QUAN (CARDS) --- */}
       <div className="row g-4 mb-5">
         <div className="col-xl-3 col-md-6">
           <div className="card stat-card bg-gradient-primary">
@@ -168,7 +160,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Card Tổng Doanh Thu */}
         <div className="col-12">
           <div className="card stat-card bg-gradient-purple">
             <div className="card-body d-flex align-items-center justify-content-between px-5">
@@ -184,7 +175,6 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* --- PHẦN 2: BỘ LỌC & BẢNG CHI TIẾT --- */}
       <h4 className="mb-3 text-secondary fw-bold border-start border-4 border-success ps-3">
         Nhật Ký Doanh Thu Chi Tiết
       </h4>
@@ -224,14 +214,12 @@ const AdminDashboard = () => {
                     <tr key={index}>
                       <td className="text-muted fw-bold">{index + 1}</td>
                       
-                      {/* Cột Ngày */}
                       <td>
                         <div className="fw-bold text-dark">{moment(booking.bookingDate).format('DD/MM/YYYY')}</div>
                         <div className="small text-muted">{moment(booking.bookingDate).format('HH:mm')}</div>
                         <div className="small text-muted fst-italic">#{booking._id.slice(-6).toUpperCase()}</div>
                       </td>
 
-                      {/* Cột Khách Hàng */}
                       <td>
                         <div className="d-flex align-items-center">
                             <div className="bg-light rounded-circle p-2 me-2 text-secondary">
@@ -248,14 +236,11 @@ const AdminDashboard = () => {
                         </div>
                       </td>
 
-                      {/* Cột Diễn Giải (Chi tiết tiền) */}
                       <td>
-                        {/* Dịch vụ chính */}
                         <div className="mb-1 fw-bold text-primary">
                             {booking.serviceId?.name || <span className="text-danger">Dịch vụ đã xóa</span>}
                         </div>
 
-                        {/* Danh sách Dịch vụ phụ */}
                         {booking.subServices && booking.subServices.length > 0 && (
                             <div className="small text-secondary ps-3 border-start border-2 border-light mb-1">
                                 {booking.subServices.map((sub, idx) => (
@@ -267,13 +252,11 @@ const AdminDashboard = () => {
                             </div>
                         )}
 
-                        {/* Vận chuyển */}
                         {booking.shipmentDetails && booking.shipmentDetails.distance > 0 && (
                             <div className="small text-info ps-3 border-start border-2 border-info bg-light rounded py-1 mt-1" style={{width: 'fit-content'}}>
                                 <div className="d-flex align-items-center">
                                     <FaTruck className="me-1"/> 
                                     <span>Vận chuyển: {booking.shipmentDetails.distance} km</span>
-                                    {/* Nếu có giá ship riêng */}
                                     {booking.shipmentDetails.price > 0 && (
                                         <span className="ms-1 fw-bold">({formatCurrency(booking.shipmentDetails.price)})</span>
                                     )}
@@ -282,7 +265,6 @@ const AdminDashboard = () => {
                         )}
                       </td>
 
-                      {/* Cột Tổng Tiền */}
                       <td className="text-end">
                           <span className="price-text fs-5">
                               {formatCurrency(booking.totalAmount)}

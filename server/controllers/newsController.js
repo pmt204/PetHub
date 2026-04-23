@@ -30,10 +30,10 @@ exports.createNews = async (req, res) => {
     const news = new News({
       title,
       content,
-      fullContent, // Thêm fullContent
+      fullContent, 
       image,
       topic,
-      date: date || new Date() // Sử dụng giá trị mặc định từ model nếu không có date
+      date: date || new Date() 
     });
     const newNews = await news.save();
     res.status(201).json(newNews);
@@ -52,7 +52,7 @@ exports.updateNews = async (req, res) => {
     }
     news.title = title || news.title;
     news.content = content || news.content;
-    news.fullContent = fullContent !== undefined ? fullContent : news.fullContent; // Xử lý fullContent
+    news.fullContent = fullContent !== undefined ? fullContent : news.fullContent; 
     news.image = image || news.image;
     news.topic = topic || news.topic;
     news.date = date || news.date;

@@ -80,7 +80,6 @@ exports.logout = (req, res) => {
   res.json({ message: 'Đăng xuất thành công' });
 };
 
-// Lấy thông tin profile
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate('customerId');
@@ -98,7 +97,6 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// Cập nhật thông tin khách hàng
 exports.updateCustomer = async (req, res) => {
   const { name, phone } = req.body;
   const customerId = req.params.id;

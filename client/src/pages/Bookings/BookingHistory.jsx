@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import moment from 'moment';
 import { FaEye, FaCalendarAlt, FaUserMd, FaTruck, FaPaw, FaInfoCircle, FaMapMarkerAlt, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
-// Import chung file CSS để đồng bộ giao diện
 import './MyBookings.css'; 
 
 const BookingHistory = () => {
@@ -25,12 +24,10 @@ const BookingHistory = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
-                // Lọc đơn Đã Hoàn Thành hoặc Đã Hủy
                 const historyBookings = res.data.filter(
                     b => b.status === 'completed' || b.status === 'canceled'
                 );
                 
-                // Sắp xếp mới nhất lên đầu
                 historyBookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 setBookings(historyBookings);
             } catch (err) {
@@ -43,7 +40,6 @@ const BookingHistory = () => {
         fetchHistory();
     }, []);
 
-    // --- CÁC HÀM TIỆN ÍCH (Copy từ MyBookings để đồng bộ logic hiển thị) ---
     const calculateDays = (checkIn, checkOut) => {
         if (!checkIn || !checkOut) return 0;
         const start = moment(checkIn);
@@ -122,10 +118,8 @@ const BookingHistory = () => {
 
                             return (
                                 <div key={booking._id} className="col-12 col-md-6 col-lg-4">
-                                    {/* Thêm class 'opacity-75' nếu đã hủy để làm mờ nhẹ */}
                                     <div className={`booking-card ${booking.status === 'canceled' ? 'opacity-75' : ''}`}>
                                         <div className="card-body-custom">
-                                            {/* Header */}
                                             <div className="d-flex justify-content-between align-items-start mb-3">
                                                 <div>
                                                     <h5 className="service-title">{booking.serviceId?.name}</h5>
@@ -135,7 +129,6 @@ const BookingHistory = () => {
                                             </div>
                                             <hr className="opacity-25" />
 
-                                            {/* --- NỘI DUNG TƯƠNG TỰ MYBOOKINGS --- */}
                                             <div className="info-row">
                                                 <span className="info-label"><FaPaw className="me-1"/> Thú cưng:</span>
                                                 <span className="info-value">{booking.petId?.name}</span>
@@ -183,7 +176,6 @@ const BookingHistory = () => {
                                                         </div>
                                                     )}
 
-                                                    {/* Dịch vụ thêm */}
                                                     {booking.subServices && booking.subServices.length > 0 && (
                                                         <div className="info-row align-items-center">
                                                             <span className="info-label">Dịch vụ thêm:</span>
@@ -204,7 +196,6 @@ const BookingHistory = () => {
                                                         </div>
                                                     )}
 
-                                                    {/* Vận chuyển */}
                                                     {showShipment && (
                                                         <div className="info-row align-items-center">
                                                             <span className="info-label"><FaTruck className="me-1"/> Vận chuyển:</span>
@@ -226,7 +217,6 @@ const BookingHistory = () => {
                                                 </>
                                             )}
 
-                                            {/* Tổng tiền */}
                                             <div className="total-amount-section">
                                                 <div className="d-flex align-items-center">
                                                     <span className="total-label">Tổng tiền:</span>

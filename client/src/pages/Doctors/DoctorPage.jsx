@@ -55,7 +55,6 @@ const DoctorPage = () => {
     navigate(`/doctors/${id}`);
   };
 
-  // --- PHẦN HIỂN THỊ KHI LOADING/ERROR ---
   if (loading) {
     return (
       <>
@@ -88,7 +87,6 @@ const DoctorPage = () => {
     <div>
       <HeroDoctor />
 
-      {/* 3. HIỂN THỊ DANH SÁCH BÁC SĨ */}
       <div className="doctor-container">
         <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <h1>Bác sĩ thú y</h1>

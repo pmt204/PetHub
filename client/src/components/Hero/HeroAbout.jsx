@@ -7,13 +7,12 @@ const HeroAbout = () => {
             className="d-flex align-items-center position-relative"
             style={{
                 minHeight: '70vh',
-                backgroundImage: 'url(/images/About1.jpg)', // Ảnh nền phù hợp
+                backgroundImage: 'url(/images/About1.jpg)', 
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
             }}
         >
-            {/* Lớp phủ tối nhẹ để làm nổi chữ */}
             <div
                 className="position-absolute top-0 start-0 w-100 h-100"
                 style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1 }}

@@ -43,7 +43,6 @@ const PetServiceHistory = ({ petId }) => {
 
   const filteredHistory = history.filter((item) => {
     const category = item.serviceId?.category;
-    // Chuyển đổi category sang string hoặc number để so sánh chính xác
     const catId = typeof category === 'object' ? category?._id : category;
     
     if (filterType === 'all') return true;
@@ -54,7 +53,6 @@ const PetServiceHistory = ({ petId }) => {
     return true;
   });
 
-  // Helper tính toán chi tiết giá (Giống MyBookings)
   const getBreakdown = (booking) => {
       const category = booking.serviceId?.category;
       const catId = typeof category === 'object' ? category?._id : category;
@@ -68,13 +66,10 @@ const PetServiceHistory = ({ petId }) => {
       const isHotel = Number(catId) === 3;
 
       if (isShipmentMain) {
-          // Vận chuyển chính: Giá = Đơn giá * Khoảng cách
           const distance = booking.shipmentDetails?.distance || 0;
           mainPrice = Math.round(unitPrice * distance);
       } else {
-          // Dịch vụ khác
           if (isHotel) {
-              // Tính số ngày (nếu có checkin/out)
               if (booking.checkIn && booking.checkOut) {
                   const diffTime = new Date(booking.checkOut) - new Date(booking.checkIn);
                   const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -86,12 +81,10 @@ const PetServiceHistory = ({ petId }) => {
               mainPrice = unitPrice;
           }
 
-          // Dịch vụ phụ
           if (booking.subServices && booking.subServices.length > 0) {
               subServicesPrice = booking.subServices.reduce((acc, sub) => acc + (sub.price || 0), 0);
           }
 
-          // Vận chuyển kèm theo (Tính ngược từ tổng)
           const currentTotal = booking.totalAmount || 0;
           const calculatedBase = mainPrice + subServicesPrice;
           if (currentTotal > calculatedBase) {
@@ -99,10 +92,8 @@ const PetServiceHistory = ({ petId }) => {
           }
       }
       
-      // Nếu shipmentDetails có lưu giá (phiên bản mới), ưu tiên dùng nó
       if (booking.shipmentDetails && booking.shipmentDetails.price) {
           shipmentPrice = booking.shipmentDetails.price;
-          // Nếu là shipment main thì mainPrice chính là shipmentPrice
           if(isShipmentMain) mainPrice = shipmentPrice;
       }
 
@@ -146,7 +137,6 @@ const PetServiceHistory = ({ petId }) => {
             return (
               <div key={booking._id} className="history-card">
                 
-                {/* --- CỘT TRÁI --- */}
                 <div className="card-main-content">
                   <div className="card-top-row">
                     <div>
@@ -157,7 +147,6 @@ const PetServiceHistory = ({ petId }) => {
                   </div>
 
                   <div className="details-grid">
-                    {/* 1. THỜI GIAN */}
                     <div className="detail-item">
                       <label>Thời gian thực hiện</label>
                       {isHotel ? (
@@ -170,7 +159,6 @@ const PetServiceHistory = ({ petId }) => {
                       )}
                     </div>
 
-                    {/* 2. CHI TIẾT */}
                     <div className="detail-item">
                       {isShipmentMain || (booking.shipmentDetails && booking.shipmentDetails.distance > 0) ? (
                           <>
@@ -204,7 +192,6 @@ const PetServiceHistory = ({ petId }) => {
                       )}
                     </div>
 
-                    {/* 3. GHI CHÚ */}
                     {booking.notes && (
                       <div className="detail-item notes">
                         <label>Ghi chú</label>
@@ -214,18 +201,15 @@ const PetServiceHistory = ({ petId }) => {
                   </div>
                 </div>
 
-                {/* --- CỘT PHẢI: HÓA ĐƠN --- */}
                 <div className="card-bill-section">
                   <div className="bill-label">Chi tiết thanh toán</div>
                   
                   <div className="bill-list">
-                    {/* Dịch vụ chính */}
                     <div className="bill-row main-service">
                       <span>{isShipmentMain ? 'Phí vận chuyển' : 'Dịch vụ chính'}</span>
                       <span>{formatPrice(mainPrice)}</span>
                     </div>
 
-                    {/* Dịch vụ phụ */}
                     {booking.subServices && booking.subServices.map(sub => (
                       <div key={sub._id} className="bill-row sub-service">
                         <span>{sub.name}</span>
@@ -233,7 +217,6 @@ const PetServiceHistory = ({ petId }) => {
                       </div>
                     ))}
                     
-                    {/* Phí vận chuyển kèm theo (NẾU CÓ và không phải là dịch vụ chính) */}
                     {!isShipmentMain && shipmentPrice > 0 && (
                         <div className="bill-row sub-service">
                             <span>Phí đưa đón</span>

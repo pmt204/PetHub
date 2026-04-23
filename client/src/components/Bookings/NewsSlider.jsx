@@ -17,9 +17,6 @@ const NewsSlider = ({ featuredNews = [] }) => {
         }
     };
 
-    // --- QUAN TRỌNG: LỌC DỮ LIỆU SẠCH ---
-    // 1. Chỉ lấy những tin tức có _id và title (loại bỏ tin rác/rỗng chỉ có ngày)
-    // 2. Đảm bảo biến là mảng trước khi filter
     const validNews = Array.isArray(featuredNews) 
         ? featuredNews.filter(item => item && item._id && item.title) 
         : [];
@@ -34,9 +31,6 @@ const NewsSlider = ({ featuredNews = [] }) => {
                 <div className="news-slider-container" ref={sliderRef}>
                     {validNews.length > 0 ? (
                         validNews.map((item) => {
-                            // --- XỬ LÝ ẢNH TRƯỚC KHI RENDER ---
-                            // Nếu item.image null/undefined -> Dùng ảnh mặc định ngay lập tức
-                            // Tránh việc trình duyệt gọi ".../undefined" gây lỗi server
                             const imageUrl = item.image 
                                 ? `http://localhost:5000/api/images/${item.image}` 
                                 : '/images/default_news.jpg';
@@ -70,7 +64,6 @@ const NewsSlider = ({ featuredNews = [] }) => {
                     )}
                 </div>
 
-                {/* Chỉ hiển thị nút điều hướng khi có đủ bài để trượt (ví dụ > 3 bài) hoặc đơn giản là có bài */}
                 {validNews.length > 0 && (
                     <>
                         <button onClick={scrollLeft} className="news-slider-nav-btn news-slider-btn-left">

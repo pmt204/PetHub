@@ -7,7 +7,6 @@ import './BookingManagement.css';
 const BookingManagement = () => {
   const [bookings, setBookings] = useState([]);
   const [filteredBookings, setFilteredBookings] = useState([]);
-  // THAY ĐỔI 1: Mặc định chọn tab 'pending' thay vì 'all'
   const [currentTab, setCurrentTab] = useState('pending'); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,7 +23,6 @@ const BookingManagement = () => {
 
       const sorted = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setBookings(sorted);
-      // Gọi filter ngay sau khi fetch để áp dụng tab mặc định
       filterData(sorted, currentTab);
       setLoading(false);
     } catch (err) {
@@ -42,13 +40,11 @@ const BookingManagement = () => {
     filterData(bookings, currentTab);
   }, [currentTab, bookings]);
 
-  // THAY ĐỔI 2: Logic lọc bỏ case 'all'
   const filterData = (data, status) => {
     setFilteredBookings(data.filter(b => b.status === status));
   };
 
   const handleUpdateStatus = async (bookingId, newStatus) => {
-    // Thêm log để debug xem ID gửi đi có đúng không
     console.log(`Updating booking ${bookingId} to ${newStatus}`);
     
     if (!window.confirm(`Bạn có chắc muốn chuyển trạng thái sang "${newStatus}"?`)) return;
@@ -65,7 +61,6 @@ const BookingManagement = () => {
       fetchBookings();
     } catch (err) {
       console.error("Lỗi cập nhật:", err);
-      // Hiển thị lỗi chi tiết từ backend
       alert(err.response?.data?.message || 'Lỗi cập nhật trạng thái. Vui lòng kiểm tra console.');
     }
   };
@@ -146,7 +141,6 @@ const BookingManagement = () => {
       {successMsg && <div className="alert alert-success shadow-sm">{successMsg}</div>}
       {error && <div className="alert alert-danger shadow-sm">{error}</div>}
 
-      {/* --- TAB FILTERS (Đã bỏ tab Tất cả) --- */}
       <div className="status-tabs">
         <button 
           className={`tab-btn ${currentTab === 'pending' ? 'active' : ''}`} 

@@ -1,5 +1,3 @@
-// src/pages/BookingResultPage.jsx – TRANG KẾT QUẢ TOÀN MÀN HÌNH SIÊU ĐẸP
-
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CheckCircle, XCircle } from 'react-feather';
@@ -9,13 +7,11 @@ const BookingResult = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Nhận dữ liệu từ navigate (sẽ truyền từ BookingModal)
   const { success = true, message = '', bookingId = null } = location.state || {};
 
   return (
     <div className="booking-result-fullpage">
       <div className="result-container">
-        {/* ICON */}
         <div className="icon-wrapper">
           {success ? (
             <CheckCircle size={120} className="text-success animate-bounce" />
@@ -24,12 +20,10 @@ const BookingResult = () => {
           )}
         </div>
 
-        {/* TIÊU ĐỀ */}
         <h1 className={`title ${success ? 'text-success' : 'text-danger'}`}>
           {success ? 'Đặt lịch thành công!' : 'Đặt lịch thất bại'}
         </h1>
 
-        {/* NỘI DUNG */}
         <div className="message-box">
           <p className="message">
             {message || (success 
@@ -45,7 +39,6 @@ const BookingResult = () => {
           )}
         </div>
 
-        {/* NÚT HÀNH ĐỘNG */}
         <div className="button-group">
           <button
             onClick={() => navigate('/services')}

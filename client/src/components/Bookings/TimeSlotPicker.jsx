@@ -4,10 +4,9 @@ import moment from 'moment';
 import './TimeSlotPicker.css';
 
 const TimeSlotPicker = ({ selectedDate, selectedTime, onSelectTime, serviceId, doctorId }) => {
-    const [availableTimes, setAvailableTimes] = useState([]); // Chứa danh sách các giờ CÒN TRỐNG từ API
+    const [availableTimes, setAvailableTimes] = useState([]); 
     const [loading, setLoading] = useState(false);
     
-    // Danh sách tất cả các khung giờ cố định của Shop để render ra màn hình
     const allTimeSlots = [
         '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
         '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
@@ -23,23 +22,20 @@ const TimeSlotPicker = ({ selectedDate, selectedTime, onSelectTime, serviceId, d
                 const token = localStorage.getItem('token');
                 const formattedDate = moment(selectedDate).format('YYYY-MM-DD');
                 
-                // Gọi API lấy giờ trống (có kèm doctorId nếu có)
                 const response = await axios.get(
                     `http://localhost:5000/api/bookings/available-times/${serviceId}`,
                     {
                         params: { 
                             date: formattedDate,
-                            doctorId: doctorId // Quan trọng: Gửi doctorId để lọc trùng lịch bác sĩ
+                            doctorId: doctorId 
                         },
                         headers: { Authorization: `Bearer ${token}` }
                     }
                 );
 
-                // API trả về mảng các giờ còn trống (ví dụ: ['08:00', '09:00'])
                 setAvailableTimes(response.data.availableTimes || []);
             } catch (err) {
                 console.error('Error fetching available times:', err);
-                // Nếu lỗi thì coi như không có giờ nào trống để an toàn
                 setAvailableTimes([]); 
             } finally {
                 setLoading(false);
@@ -47,7 +43,7 @@ const TimeSlotPicker = ({ selectedDate, selectedTime, onSelectTime, serviceId, d
         };
 
         fetchAvailableTimes();
-    }, [selectedDate, serviceId, doctorId]); // Chạy lại khi date, service hoặc doctor thay đổi
+    }, [selectedDate, serviceId, doctorId]); 
 
     const handleTimeSelect = (time) => {
         onSelectTime(time);
@@ -56,18 +52,15 @@ const TimeSlotPicker = ({ selectedDate, selectedTime, onSelectTime, serviceId, d
     const isTimeDisabled = (time) => {
         if (!selectedDate) return true;
 
-        // 1. Kiểm tra quá khứ
         const now = moment();
         const [hours, minutes] = time.split(':').map(Number);
         const slotDateTime = moment(selectedDate).hour(hours).minute(minutes);
         
-        // Nếu ngày chọn là hôm nay và giờ slot nhỏ hơn giờ hiện tại -> Disable
         if (moment(selectedDate).isSame(now, 'day') && slotDateTime.isBefore(now)) {
             return true;
         }
 
-        // 2. Kiểm tra trùng lịch (Dựa vào dữ liệu API trả về)
-        // Nếu giờ này KHÔNG nằm trong danh sách availableTimes -> Disable (đã bị đặt)
+        
         return !availableTimes.includes(time);
     };
 
@@ -95,7 +88,6 @@ const TimeSlotPicker = ({ selectedDate, selectedTime, onSelectTime, serviceId, d
                 );
             })}
             
-            {/* Chú thích trạng thái */}
             <div className="d-flex justify-content-center gap-3 mt-3 small text-muted">
                 <div className="d-flex align-items-center">
                     <span className="d-inline-block border border-secondary bg-white rounded me-1" style={{width: 12, height: 12}}></span>

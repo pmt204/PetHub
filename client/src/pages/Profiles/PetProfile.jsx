@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import PetServiceHistory from '../../components/PetProfile/PetServiceHistory';
-import './PetProfile.css'; // Import file CSS
+import './PetProfile.css';
 
 const PetProfile = () => {
   const { petId } = useParams();
@@ -25,7 +25,6 @@ const PetProfile = () => {
 
   return (
     <div className="pet-profile-container">
-      {/* HEADER: Tên Pet & Nút Quay lại */}
       <div className="profile-header">
         <div className="profile-title">
           <h1>{petInfo ? `Hồ sơ: ${petInfo.name}` : 'Đang tải...'}</h1>
@@ -39,7 +38,6 @@ const PetProfile = () => {
         </Link>
       </div>
 
-      {/* COMPONENT LỊCH SỬ */}
       <PetServiceHistory petId={petId} />
     </div>
   );
