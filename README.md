@@ -46,7 +46,7 @@ Ensure you have the following installed on your local environment:
 1. **Clone the repository:**
 
    ```bash
-   git clone [https://github.com/your-username/pethub.git](https://github.com/your-username/pethub.git)
+   git clone https://github.com/pmt204/PetHub.git
    cd pethub
    ```
 
